@@ -1,0 +1,5 @@
+Place the two official academic-use CSV files here:
+- UNSW_NB15_training-set.csv
+- UNSW_NB15_testing-set.csv
+Official dataset: https://research.unsw.edu.au/projects/unsw-nb15-dataset
+Do not commit the large CSVs publicly unless redistribution terms are checked.

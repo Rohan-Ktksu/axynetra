@@ -1,0 +1,25 @@
+# Environment / cache
+.venv/
+__pycache__/
+.pytest_cache/
+.temp/
+.pip-cache/
+.audit-cache/
+*.pyc
+# Raw datasets (download from official source)
+data/**
+!data/PLACE_UNSW_CSV_HERE.txt
+outputs/
+*.pdf
+*_console.txt
+.vscode/
+.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+# Local OS / credentials
+.DS_Store
+.env
+.env.*
