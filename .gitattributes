@@ -1,0 +1,2 @@
+# Preserve the published CSV bytes so provenance SHA-256 values stay portable.
+reference/data/*.csv -text

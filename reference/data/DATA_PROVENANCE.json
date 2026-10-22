@@ -1,0 +1,62 @@
+{
+  "dataset": "UNSW-NB15 community mirror; duplicate-controlled experiment",
+  "official_reference": "https://research.unsw.edu.au/projects/unsw-nb15-dataset",
+  "mirror_revision": "44bbd02b9e70f74dd915218d5eb702f125341ffc",
+  "raw_train_rows": 175341,
+  "raw_test_rows": 82332,
+  "predictors": 42,
+  "training_duplicate_predictor_rows": 74301,
+  "conflicting_training_groups": 1772,
+  "conflicting_training_rows_removed": 30528,
+  "remaining_same_label_duplicates_removed": 45545,
+  "overlapping_test_rows_removed": 8541,
+  "clean_train_rows": 99268,
+  "clean_test_rows": 73791,
+  "clean_train_class_counts": {
+    "Normal": 51661,
+    "Exploits": 18417,
+    "Fuzzers": 14602,
+    "Reconnaissance": 6209,
+    "Generic": 3904,
+    "DoS": 2477,
+    "Shellcode": 1085,
+    "Backdoor": 403,
+    "Analysis": 393,
+    "Worms": 117
+  },
+  "clean_test_class_counts": {
+    "Normal": 35528,
+    "Generic": 17149,
+    "Exploits": 9330,
+    "Fuzzers": 5801,
+    "Reconnaissance": 2358,
+    "DoS": 2085,
+    "Backdoor": 579,
+    "Analysis": 552,
+    "Shellcode": 365,
+    "Worms": 44
+  },
+  "test_duplicate_rows_retained": 21147,
+  "test_labels_used_to_clean_training": false,
+  "warning": "Modified split, not the unchanged official benchmark. Notebook defaults to stratified row caps. Original test duplicates are retained after cross-split overlap removal.",
+  "files": {
+    "data\\original\\UNSW_NB15_training-set.csv": {
+      "sha256": "bec7dd5ec88dc2a0ccc7a07879d338395ed7421750f675fd0339e07dfe0648fa",
+      "bytes": 32293018,
+      "download_url": "https://raw.githubusercontent.com/Nir-J/ML-Projects/44bbd02b9e70f74dd915218d5eb702f125341ffc/UNSW-Network_Packet_Classification/UNSW_NB15_training-set.csv"
+    },
+    "data\\original\\UNSW_NB15_testing-set.csv": {
+      "sha256": "734fe6642edf758f7c94d7d9149426b49d202fe8e7bf0bef47392489c3c0a559",
+      "bytes": 15380800,
+      "download_url": "https://raw.githubusercontent.com/Nir-J/ML-Projects/44bbd02b9e70f74dd915218d5eb702f125341ffc/UNSW-Network_Packet_Classification/UNSW_NB15_testing-set.csv"
+    },
+    "data\\UNSW_NB15_training_clean.csv": {
+      "sha256": "ba6fb307e844248eea1ee6ab66aa9e4173ca4667eb9dea9e614dc50a5ce08b76",
+      "bytes": 21258859
+    },
+    "data\\UNSW_NB15_testing_no_overlap.csv": {
+      "sha256": "c14e1b9f7de3a80dd1bb999b0e4cb711ec25ccf05ca7809cd35479a45bf989ea",
+      "bytes": 14616174
+    }
+  }
+}

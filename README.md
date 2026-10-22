@@ -2,13 +2,27 @@
 
 **Explainable Network Threat Classification & Intelligent Alert Triage**
 
-[Open the complete ML notebook](Axynetra_ML_Workflow.ipynb) · [Read its Python source](Axynetra_ML_Workflow.py) · [Command-line pipeline](multiclass_intrusion.py)
+[![Open CSV notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb)
+
+**[Open the CSV notebook with saved outputs](reference/Axynetra_UNSW_NB15.ipynb)** · **[CSV data and notebook reference folder](reference/)**
+
+[View outputs in Jupyter nbviewer](https://nbviewer.org/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb)
+
+[Original synthetic ML notebook](Axynetra_ML_Workflow.ipynb) · [Its Python source](Axynetra_ML_Workflow.py) · [Command-line pipeline](multiclass_intrusion.py)
 
 Axynetra is a supervised machine-learning project for **CSMA Option 4: Multi-Class Attack Classification**, designed for the UNSW-NB15 dataset. It predicts **Normal** traffic or one of nine attack categories: Analysis, Backdoor, DoS, Exploits, Fuzzers, Generic, Reconnaissance, Shellcode and Worms.
 
 The repository provides an academic notebook, a command-line experiment runner, a Streamlit dashboard and a PDF-report generator. It analyses saved network-flow CSV records. It does not capture packets or block traffic. **Autoencoders are not implemented.**
 
-> **Current evidence:** the saved notebook and images in this README use reproducible **synthetic demonstration data**, not real UNSW-NB15 records. They verify the pipeline and illustrate its outputs. Real-dataset results remain pending; do not report these numbers as cybersecurity benchmark performance.
+> **Two separate examples:** the original root notebook and the charts/tables below use reproducible **synthetic demonstration data**. The new [CSV reference notebook](reference/Axynetra_UNSW_NB15.ipynb) contains saved outputs from a **cleaned, sampled UNSW-NB15 experiment**, sourced from a documented community mirror. Its modified split is not the unchanged official benchmark. These two sets of results must not be mixed.
+
+## Open the CSV notebook and show its outputs
+
+Click **View outputs in Jupyter nbviewer** for a read-only notebook presentation, or **Open in Colab** to use an interactive browser-based notebook. Saved tables, code outputs and Matplotlib figures are already included. To execute it yourself in Colab, connect a Python runtime and choose **Runtime → Run all**; the first cell downloads the two published CSVs and checks their hashes. Google sign-in may be required to run cells. No local Jupyter server is needed for either link.
+
+The [reference folder](reference/) includes the `.ipynb`, matching Python source, requirements, training/test CSVs, cleaning summary and provenance. The complete cleaned files contain **99,268 training rows** and **73,791 test rows**; the notebook defaults to a stratified **10,000/5,000** experiment. Set both row caps to zero to use all cleaned rows.
+
+For local Jupyter, install `reference/requirements.txt`, run `python -m notebook` from the project folder, then open [reference/Axynetra_UNSW_NB15.ipynb](reference/Axynetra_UNSW_NB15.ipynb). See [reference instructions](reference/README.md) for setup and dataset details.
 
 ## Start with the notebook
 
@@ -237,6 +251,7 @@ create_report.py            Academic PDF generator
 requirements*.txt           Runtime, development, notebook and lock dependencies
 tests/                      Unit, integration and regression tests
 docs/demo/                  Explicitly synthetic public demonstration charts
+reference/                  CSV-based notebook, saved outputs, data and provenance
 .github/workflows/          Automated checks
 ```
 

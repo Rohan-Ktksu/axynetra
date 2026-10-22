@@ -70,6 +70,19 @@ def render_dashboard(root=Path('outputs')):
         'and is not claimed to be production-ready.'
     )
 
+    with st.expander('Notebook and CSV reference'):
+        st.markdown(
+            '[Open in Colab](https://colab.research.google.com/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb) '
+            '· [Jupyter output viewer](https://nbviewer.org/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb) '
+            '· [Notebook with saved outputs](https://github.com/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb) '
+            '· [Reference folder](https://github.com/Rohan-Ktksu/axynetra/tree/main/reference)'
+        )
+        st.markdown(
+            '[Training CSV](https://raw.githubusercontent.com/Rohan-Ktksu/axynetra/main/reference/data/UNSW_NB15_training_clean.csv) '
+            '· [Test CSV](https://raw.githubusercontent.com/Rohan-Ktksu/axynetra/main/reference/data/UNSW_NB15_testing_no_overlap.csv)'
+        )
+        st.caption('Saved notebook outputs use a cleaned, sampled UNSW-NB15 experiment; the root notebook uses separate synthetic demonstration data.')
+
     try:
         bundle = load_dashboard_artifacts(root)
     except (OSError, ValueError, pd.errors.ParserError) as exc:

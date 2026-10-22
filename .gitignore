@@ -11,6 +11,7 @@ __pycache__/
 data/**
 !data/PLACE_UNSW_CSV_HERE.txt
 outputs/
+reference/data/original/
 *.pdf
 *_console.txt
 .vscode/

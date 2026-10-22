@@ -1,0 +1,8 @@
+stage,rows
+Original training,175341
+Original test,82332
+Conflicting training rows removed,30528
+Same-label training duplicates removed,45545
+Test overlap removed,8541
+Clean training,99268
+Non-overlapping test,73791
