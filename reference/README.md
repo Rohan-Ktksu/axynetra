@@ -54,6 +54,8 @@ To regenerate the notebook and its outputs from the project root:
 
 ## Attribution
 
+Verification on 22 October 2026: all 14 code cells executed with the default CSV row caps and produced five saved inline figures without cell errors. Both CSV hashes matched provenance. Opening from the project root and the reference folder worked, and the Colab download setup retrieved the public CSVs and verified their hashes. All 22 regression tests and [GitHub checks](https://github.com/Rohan-Ktksu/axynetra/actions/runs/39803704946) passed. The public nbviewer page was checked for rendered code, tables and charts.
+
 The dataset remains the work of its authors; this project does not claim ownership. Follow the academic-use and citation conditions on the [official dataset page](https://research.unsw.edu.au/projects/unsw-nb15-dataset), which requests these references:
 
 1. Moustafa, N., & Slay, J. (2015). [UNSW-NB15: a comprehensive data set for network intrusion detection systems](https://ieeexplore.ieee.org/document/7348942). MilCIS.

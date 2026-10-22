@@ -230,14 +230,15 @@ Axynetra has not been validated for live monitoring, automated response or produ
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe tools/build_notebook.py --execute
+.\.venv\Scripts\python.exe reference/tools/build_notebook.py --execute
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-GitHub Actions runs unit/regression tests and executes the synthetic notebook. Unit tests cover leakage guards, filtering, sampling and ROC-AUC correctness, including undefined classes and reordered probability columns. Notebook execution checks the complete educational workflow. These do not measure real-data effectiveness.
+GitHub Actions runs unit/regression tests and executes both the original synthetic notebook and the cleaned CSV reference notebook. Unit tests cover leakage guards, filtering, sampling and ROC-AUC correctness, including undefined classes and reordered probability columns. Notebook execution checks the complete educational workflow; the CSV experiment's performance applies only to its documented modified split and sample.
 
 Dependencies are pinned; `requirements-notebook.txt` adds notebook execution dependencies to the normal development requirements. The full lock includes audit tooling; `python -m pip_audit` checks current known advisories when that tool is installed.
 
-Streamlit binds to localhost and usage telemetry is disabled. CSV downloads neutralize spreadsheet formulas. Datasets, local secrets, generated reports, environments and result directories are ignored. Only intentionally selected synthetic notebook outputs/README charts are published. See [REVIEW.md](REVIEW.md) for the review history and limits.
+Streamlit binds to localhost and usage telemetry is disabled. CSV downloads neutralize spreadsheet formulas. Root datasets, local secrets, generated reports, environments and result directories are ignored. The explicitly published `reference/data/` files are the documented public dataset derivatives; their notebook outputs are versioned alongside the original synthetic notebook outputs/README charts. See [REVIEW.md](REVIEW.md) for the review history and limits.
 
 ## Project files
 
