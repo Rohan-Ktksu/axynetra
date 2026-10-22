@@ -23,7 +23,7 @@ Open **`Axynetra_ML_Workflow.ipynb`**, select **Select Kernel → Python Environ
 
 If starting from a new checkout, first create an isolated environment using `py -m venv .venv`. The local environment was tested with Python 3.14.6. `requirements-lock.txt` records the reviewed full development environment; install it for those exact dependency versions.
 
-`Axynetra_ML_Workflow.py` contains the same cells in **percent format** (`# %%` and `# %% [markdown]`). VS Code can run them individually with **Run Cell**. It imports tested helpers from `multiclass_intrusion.py`; keep both files in the project folder. The notebook shows model training explicitly rather than calling the whole command-line runner as one hidden step.
+`Axynetra_ML_Workflow.py` contains the same cells in **percent format** (`# %%` and `# %% [markdown]`). VS Code can run them individually with **Run Cell**. The notebook is self-contained: data loading and checks use pandas/NumPy directly, preprocessing and model training use scikit-learn directly, and every chart is constructed with Matplotlib in its own cell. It imports no project helper modules. The command-line application remains a separate implementation.
 
 To rebuild and execute the notebook after changing its Python source:
 

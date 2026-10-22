@@ -39,3 +39,9 @@ Added a 28-cell notebook with 13 executed code cells and matching percent-format
 The README documents stage-by-stage outputs, artifact meanings, use cases, execution and limitations, with four explicitly synthetic figures and measured demonstration tables. The demo updater refuses metadata marked as real data. Saved notebook outputs are deliberately public synthetic examples; users must clear outputs before publishing sensitive real-data runs.
 
 A refreshed package audit found advisories in the previously installed Pillow and Certifi versions. Updated Pillow to 13.0.0 and Certifi to 2026.10.19, together with Streamlit 1.66.1 for Pillow 13 compatibility. Updated dependency pins and the full lock; compatibility checks passed, and the final audit reported no known vulnerabilities. Real UNSW-NB15 performance remains untested because source CSVs were not available.
+
+## Standalone notebook rewrite — 22 October 2026
+
+Replaced all application-helper imports in the educational notebook with visible pandas, NumPy, scikit-learn and Matplotlib code. The notebook now defines data generation/loading, validation and sampling, stratified splitting, preprocessing, classifiers, metrics, per-class AUC, figures and numeric feature signals directly. Its matching Python source is self-contained apart from declared third-party libraries.
+
+All notebook cells executed, and held-out synthetic metrics exactly matched the CLI reference. All 22 existing tests and notebook-output dashboard rendering passed. A separate execution in a folder without application modules also exercised CSV loading, label-variant normalization, row caps, leakage-column exclusion and file fingerprints using generated CSV fixtures. These fixtures are not real UNSW-NB15 data. README examples and figures were refreshed from the public synthetic run.
