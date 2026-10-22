@@ -36,21 +36,15 @@ After executing in synthetic mode, `python tools/update_demo_docs.py` refreshes 
 
 ## The ML pipeline
 
-```mermaid
-flowchart TD
-    A[Load synthetic demonstration or supplied CSVs] --> B[Explore training data]
-    B --> C[Validate schema and labels; check duplicates and overlap]
-    C --> D[Exclude attack_cat, label and id]
-    D --> E[Stratified fit-training / validation split]
-    E --> F[Train-only preprocessing]
-    F --> G[Decision Tree / Random Forest / Extra Trees / Logistic Regression]
-    G --> H[Compare validation metrics and select by Macro F1]
-    H --> I[Refit selected pipeline on all training records]
-    I --> J[Evaluate winner on held-out test data]
-    J --> K[Confusion matrix / class report / one-vs-rest ROC-AUC]
-    K --> L[Global feature importance and illustrative analyst queue]
-    L --> M[Export artifacts and show in dashboard]
-```
+[![Axynetra ML pipeline: validated inputs branch into training and reserved test data; train four candidates, select by validation Macro F1, refit, then evaluate the winner and export results.](docs/pipeline/axynetra_ml_pipeline.png)](docs/pipeline/axynetra_ml_pipeline.png)
+
+[Open full-size diagram](docs/pipeline/axynetra_ml_pipeline.png) · [Scalable SVG](docs/pipeline/axynetra_ml_pipeline.svg)
+
+**Training path:** training EDA → stratified fit/validation split → fit preprocessing and four classifiers → validation comparison → select winner → refit on full training data.
+
+**Test path:** hold the test data aside → evaluate the refitted winner → generate metrics, charts and illustrative review items. Test scores never select the model.
+
+The diagram is a static image so its labels stay visible in GitHub and narrow README previews. Regenerate it with `python tools/draw_pipeline.py`.
 
 ### What each stage produces
 
