@@ -1,105 +1,253 @@
-# Axynetra — CSMA Option 4: Multi-Class Attack Classification
+# Axynetra
 
-**Tagline:** *Explainable Network Threat Classification & Intelligent Alert Triage*
+**Explainable Network Threat Classification & Intelligent Alert Triage**
 
-**Axynetra** is an offline multi-class network-flow security analytics research prototype built for **CSMA Option 4**, designed for the **UNSW-NB15** dataset. It classifies stored network flows into **Normal** traffic and **nine named attack categories** (`Analysis`, `Backdoor`, `DoS`, `Exploits`, `Fuzzers`, `Generic`, `Reconnaissance`, `Shellcode`, `Worms`), separates validation-based model selection from held-out evaluation, provides exploratory feature signals, and generates an illustrative SOC analyst triage queue. CSV origin is not independently authenticated by the software.
+[Open the complete ML notebook](Axynetra_ML_Workflow.ipynb) · [Read its Python source](Axynetra_ML_Workflow.py) · [Command-line pipeline](multiclass_intrusion.py)
 
-> **Important Safeguard:** Axynetra is an **OFFLINE** research prototype operating on stored CSV records. It is **not** a live intrusion detection system (IDS), does not capture live packets, and does not perform automated blocking. Existing artifacts generated with `--smoke-test` use synthetic data solely for code verification and must not be reported as real UNSW-NB15 benchmark results.
+Axynetra is a supervised machine-learning project for **CSMA Option 4: Multi-Class Attack Classification**, designed for the UNSW-NB15 dataset. It predicts **Normal** traffic or one of nine attack categories: Analysis, Backdoor, DoS, Exploits, Fuzzers, Generic, Reconnaissance, Shellcode and Worms.
 
----
+The repository provides an academic notebook, a command-line experiment runner, a Streamlit dashboard and a PDF-report generator. It analyses saved network-flow CSV records. It does not capture packets or block traffic. **Autoencoders are not implemented.**
 
-## Key Methodological Features & Leakage Guardrails
+> **Current evidence:** the saved notebook and images in this README use reproducible **synthetic demonstration data**, not real UNSW-NB15 records. They verify the pipeline and illustrate its outputs. Real-dataset results remain pending; do not report these numbers as cybersecurity benchmark performance.
 
-1. **10-Class Normalization & Predictor Hygiene:**
-   - Normalizes dataset label variants (`Backdoors` $\rightarrow$ `Backdoor`, whitespace/casing cleanup).
-   - Strictly excludes `attack_cat`, binary `label`, and row `id` from predictors to prevent target/index leakage.
-2. **Leak-Free Stratified Validation Selection (Evaluation Flaw Fixed):**
-   - Splits the training data into an **80% fit-training subset** and a **20% stratified validation subset** (`--val-fraction 0.20`).
-   - **Rare-class preservation:** Any attack class with $\ge 2$ training instances is guaranteed at least 1 sample in `fit-train` and at least 1 sample in `validation`. If an ultra-rare class has only 1 instance in a tiny custom subsample, it falls back to `fit-train` and logs the fallback in `run_metadata.json`.
-   - All numeric (`SimpleImputer(strategy="median")`, `StandardScaler`) and categorical (`SimpleImputer(strategy="most_frequent")`, `OneHotEncoder(handle_unknown="ignore")`) transformers are fitted **exclusively on training data**.
-   - All four classifiers (**Decision Tree**, **Random Forest**, **Extra Trees**, **Logistic Regression**) are ranked **solely by Validation Macro F1** (`validation_leaderboard.csv`).
-   - Only the single validation winner is refitted on the full training set and evaluated **exactly once** on the untouched official held-out test set (`heldout_test_metrics.csv`).
-3. **Explainability & SOC Alert Triage:**
-   - Exports global impurity-based feature importances (`feature_importance.csv`, `feature_importance.png`) for compatible tree models, explicitly caveated as associative and non-causal.
-   - Exports top 100 prioritized flows (`example_soc_alerts.csv`) combining uncalibrated model confidence, illustrative severity weights (`0–5`), human-review flags, and per-flow standardized feature deviations (`top_feature_deviations_illustrative`).
+## Start with the notebook
 
----
+Open the project folder in **VS Code**, install Microsoft's Python and Jupyter extensions, then:
 
-## Windows PowerShell Quickstart (From Project Root)
-
-### 1. Environment Setup & Smoke Test Verification
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe multiclass_intrusion.py --smoke-test --output outputs
-.\.venv\Scripts\python.exe -m pytest -v
+cd "D:\Axynetra"
+.\.venv\Scripts\python.exe -m pip install -r requirements-notebook.txt
 ```
-Use an isolated virtual environment without `--system-site-packages` for a reproducible installation.
-The reviewed environment uses Python 3.14.6. `requirements-lock.txt` records its complete development dependency versions, including the audit tool. To reproduce it, install with `python -m pip install -r requirements-lock.txt`. Run `python -m pip_audit` to recheck known vulnerabilities as advisories change.
 
-### 2. Launch Offline Streamlit Analyst Dashboard
+Open **`Axynetra_ML_Workflow.ipynb`**, select **Select Kernel → Python Environments → `.venv\Scripts\python.exe`**, then **Run All**. Existing saved outputs can also be read on GitHub without running Python.
+
+If starting from a new checkout, first create an isolated environment using `py -m venv .venv`. The local environment was tested with Python 3.14.6. `requirements-lock.txt` records the reviewed full development environment; install it for those exact dependency versions.
+
+`Axynetra_ML_Workflow.py` contains the same cells in **percent format** (`# %%` and `# %% [markdown]`). VS Code can run them individually with **Run Cell**. It imports tested helpers from `multiclass_intrusion.py`; keep both files in the project folder. The notebook shows model training explicitly rather than calling the whole command-line runner as one hidden step.
+
+To rebuild and execute the notebook after changing its Python source:
+
 ```powershell
+.\.venv\Scripts\python.exe tools/build_notebook.py --execute
+```
+
+Running the builder without `--execute` generates a clean notebook without saved outputs. The builder uses the current Python environment and puts temporary kernel resources in the project's ignored `.temp/` directory.
+After executing in synthetic mode, `python tools/update_demo_docs.py` refreshes the public README tables and charts. It refuses runs marked as real data.
+
+## The ML pipeline
+
+```mermaid
+flowchart TD
+    A[Load synthetic demonstration or supplied CSVs] --> B[Explore training data]
+    B --> C[Validate schema and labels; check duplicates and overlap]
+    C --> D[Exclude attack_cat, label and id]
+    D --> E[Stratified fit-training / validation split]
+    E --> F[Train-only preprocessing]
+    F --> G[Decision Tree / Random Forest / Extra Trees / Logistic Regression]
+    G --> H[Compare validation metrics and select by Macro F1]
+    H --> I[Refit selected pipeline on all training records]
+    I --> J[Evaluate winner on held-out test data]
+    J --> K[Confusion matrix / class report / one-vs-rest ROC-AUC]
+    K --> L[Global feature importance and illustrative analyst queue]
+    L --> M[Export artifacts and show in dashboard]
+```
+
+### What each stage produces
+
+| Notebook stage | What happens | Visible output |
+| --- | --- | --- |
+| 1. Imports | Load libraries and record versions/seed | Version table, seed 42, ten categories |
+| 2. Data loading | Explicit synthetic mode or user-supplied train/test CSVs | Data-source warning, split sizes and source fingerprints for real files |
+| 3. Training EDA | Inspect training records, types, missingness and imbalance | First five rows, schema, numeric statistics, class-count table and chart |
+| 4. Input checks | Reject invalid labels, infinite values, duplicate/overlapping records | Predictor count/list and passed checks, or an actionable error |
+| 5. Training split | Create an approximately 80/20 stratified fit/validation split | Sizes, class coverage and singleton-class fallback notes |
+| 6. Preprocessing | Define per-model transforms and classifiers | Preprocessor structure and four estimator configurations |
+| 7. Candidate training | Fit each candidate and evaluate on validation only | Four-model leaderboard with precision, recall, F1, accuracy and ROC-AUC; comparison chart |
+| 8. Selection/refit | Choose by validation Macro F1; refit winner on all training data | Selected model name and fitted pipeline |
+| 9. Held-out evaluation | Evaluate the winner in one final stage per run | Final metrics, class report and per-class AUC/coverage |
+| 10. Evaluation charts | Plot errors and probability-ranking performance | Row-normalized confusion matrix and one-vs-rest ROC curves |
+| 11. Feature signals | Inspect tree impurity importances | Top features, plot and explicitly identified source model |
+| 12. Alert queue | Combine predictions with illustrative severity weights | Ten-row preview of up to 100 prioritized review items |
+| 13. Export | Save results and write completion metadata last | Artifact names/sizes, provenance and a final run summary |
+| 14. Interpretation | Explain uses, assumptions and next experiments | Limitations, use cases and references |
+
+### Preprocessing and selection rules
+
+- Numeric features: **median imputation → StandardScaler**.
+- Categorical features: **most-frequent imputation → OneHotEncoder**, handling unseen categories.
+- Each candidate's preprocessor fits only on fit-training records. After selection, a new winning pipeline fits on all training records.
+- Models: **Decision Tree, Random Forest, Extra Trees and Logistic Regression**, with class weighting.
+- Selection: highest **validation Macro F1**; validation weighted F1 and accuracy break ties. Test scores do not select the model.
+- Stratification preserves at least one fit and one validation record per class with two or more examples. Singleton classes stay in fit-training and are recorded; exact percentages vary with rounding.
+- Missing/unknown targets are rejected rather than guessed as Normal. `attack_cat`, binary `label`, row `id` and ambiguous duplicate headers cannot enter predictors.
+- Exact duplicate training predictors and train/test overlaps are rejected. Investigate them before altering benchmark splits; these checks do not rule out every possible form of leakage.
+
+## Demonstration outputs
+
+The following values come from the executed synthetic notebook, seed 42. Synthetic `feature_XX` columns are generated examples, not actual UNSW-NB15 feature names.
+
+<!-- BEGIN SYNTHETIC SUMMARY -->
+| Demonstration output | Observed value |
+| --- | --- |
+| Training rows | 1700 |
+| Fit-training rows | 1358 |
+| Validation rows | 342 |
+| Held-out test rows | 500 |
+| Predictors after exclusions | 24 |
+| Validation-selected winner | Extra Trees |
+| Held-out accuracy | 0.6880 |
+| Held-out Macro F1 | 0.6828 |
+| Held-out one-vs-rest macro ROC-AUC | 0.9192 |
+| Defined AUC classes | 10/10 |
+
+**Validation results — synthetic demonstration**
+
+| Model | Accuracy | Macro F1 | Macro ROC-AUC |
+| --- | ---: | ---: | ---: |
+| Extra Trees | 0.6696 | 0.6695 | 0.8943 |
+| Random Forest | 0.6257 | 0.6246 | 0.9020 |
+| Logistic Regression | 0.5292 | 0.5254 | 0.8646 |
+| Decision Tree | 0.3041 | 0.3057 | 0.6517 |
+
+**Example review queue — synthetic demonstration**
+
+| Flow index | Predicted category | Uncalibrated score | Illustrative priority |
+| --- | --- | ---: | ---: |
+| 112 | Shellcode | 0.6249 | 3.1245 |
+| 351 | Shellcode | 0.5778 | 2.889 |
+| 136 | Shellcode | 0.5759 | 2.8795 |
+<!-- END SYNTHETIC SUMMARY -->
+
+**Training-data class distribution — synthetic demonstration**
+
+![Synthetic training class distribution](docs/demo/training_class_distribution.png)
+
+**Validation comparison — synthetic demonstration**
+
+![Synthetic validation comparison](docs/demo/validation_comparison.png)
+
+**Winner's held-out confusion matrix — synthetic demonstration**
+
+![Synthetic held-out confusion matrix](docs/demo/confusion_matrix.png)
+
+**Winner's held-out ROC curves — synthetic demonstration**
+
+![Synthetic held-out ROC curves](docs/demo/roc_curves.png)
+
+These four public images were exported from the synthetic run. The notebook additionally shows feature-importance and queue outputs. Real/private runs should have notebook outputs cleared before publication because EDA previews and metadata can expose records or source details. Raw datasets and generated result directories are ignored by Git, but **saved notebook outputs are versioned**.
+
+## Metrics and how to read them
+
+| Metric/output | Meaning |
+| --- | --- |
+| Accuracy | Fraction of all records classified correctly; frequent classes can dominate |
+| Macro precision/recall/F1 | Equal contribution from all ten categories, with zero for unsupported categories |
+| Weighted F1 | Per-class F1 weighted by observed support |
+| Class report | Precision, recall, F1 and support for each class |
+| Normalized confusion matrix | Each row shows where a true class's records were assigned |
+| One-vs-rest ROC-AUC | How well probability scores rank each class against all others |
+
+`roc_auc_ovr_macro` requires all ten class AUCs to be defined. If a split lacks positives, negatives or a learned class, its AUC is undefined. `roc_auc_ovr_macro_supported` is a separate mean over defined classes, accompanied by `roc_auc_defined_classes` and `roc_auc_total_classes`. Do not present that subset average as full ten-class AUC. AUC uses aligned `predict_proba` columns, not predicted class labels.
+
+Global impurity importance is associative, not causal, and can favour high-cardinality features. If Logistic Regression wins, importance comes from the highest-ranked validation tree model and is labelled accordingly. The maximum class score is uncalibrated; illustrative priority = score × a hand-assigned severity weight. Numeric deviations describe differences from training statistics, not causal explanations of individual alerts.
+
+## Output files
+
+The CLI writes to **`outputs/`** by default. The notebook writes separately to **`outputs/notebook/`** so it does not overwrite a previous CLI experiment.
+
+| File | Contents |
+| --- | --- |
+| `validation_leaderboard.csv`, `model_comparison.csv` | Four candidates' validation metrics and selection flag |
+| `validation_roc_auc.csv` | Per-class validation AUC and coverage for every candidate |
+| `heldout_test_metrics.csv` | Winner's final test metrics |
+| `heldout_test_roc_auc.csv` | Per-class held-out AUC, support and undefined reasons |
+| `classification_report.txt` | Held-out classification report |
+| `confusion_matrix.png`, `roc_curves.png` | Final evaluation figures |
+| `feature_importance.csv`, `feature_importance.png` | Global tree feature signals and model identity |
+| `example_soc_alerts.csv` | Up to 100 illustrative human-review items |
+| `run_metadata.json` | Run type, split counts, selected model and evaluation details; written last |
+| `training_class_distribution.png`, `validation_comparison.png` | Additional notebook EDA/comparison figures |
+
+The notebook's metadata also records package versions, seed and supplied-file fingerprints. A valid completion marker is required by the dashboard. Use a separate output folder for each concurrent experiment.
+
+## Run from PowerShell
+
+```powershell
+cd "D:\Axynetra"
+.\.venv\Scripts\python.exe multiclass_intrusion.py --smoke-test --output outputs
 .\.venv\Scripts\python.exe -m streamlit run dashboard.py
 ```
 
-### 3. Official UNSW-NB15 Dataset Execution
-Download the official pre-split files from [UNSW Canberra — UNSW-NB15 Dataset](https://research.unsw.edu.au/projects/unsw-nb15-dataset) and save them in `data/`:
-- `data/UNSW_NB15_training-set.csv` (175,341 records)
-- `data/UNSW_NB15_testing-set.csv` (82,332 records)
+Open **http://localhost:8501**. Stop with **Ctrl+C**. To view notebook results in the dashboard from the project root:
 
-**Short run on stratified subsamples (recommended first pass for modest RAM / integrated graphics):**
 ```powershell
-.\.venv\Scripts\python.exe multiclass_intrusion.py --train data/UNSW_NB15_training-set.csv --test data/UNSW_NB15_testing-set.csv --max-train 50000 --max-test 20000 --output outputs
+.\.venv\Scripts\python.exe -m streamlit run dashboard.py -- --results outputs/notebook
 ```
 
-**Full official split run:**
+## Use the real UNSW-NB15 dataset
+
+Download the official pre-split files from [UNSW Canberra](https://research.unsw.edu.au/projects/unsw-nb15-dataset) and put them in `data/`:
+
+- `UNSW_NB15_training-set.csv` — published full split: 175,341 records.
+- `UNSW_NB15_testing-set.csv` — published full split: 82,332 records.
+
+For the notebook, set `SMOKE_TEST=False`. Its initial 50,000/20,000 row limits enable a smaller experiment; set both to zero for the full supplied split. Missing files cause an error instead of silently switching to synthetic data. CSV origin is not authenticated by the application; source fingerprints identify files without proving their origin.
+
+CLI example using the full split:
+
 ```powershell
 .\.venv\Scripts\python.exe multiclass_intrusion.py --train data/UNSW_NB15_training-set.csv --test data/UNSW_NB15_testing-set.csv --max-train 0 --max-test 0 --output outputs
 ```
 
-### 4. Regenerate Academic PDF Report
-```powershell
-.\.venv\Scripts\python.exe create_report.py
-```
-To replace the `SRNNO` placeholder once ready for submission:
+To regenerate the academic report from **CLI results in `outputs/`**:
+
 ```powershell
 .\.venv\Scripts\python.exe create_report.py --srn YOUR_SRN
 ```
 
----
+Changing the notebook output directory does not automatically change the report generator's input. Existing PDFs may predate current code; regenerate before submission.
 
-## Output Artifacts (`outputs/`)
-- `validation_leaderboard.csv` & `model_comparison.csv` — 4-model comparison on the stratified validation split (`accuracy`, `macro_precision`, `macro_recall`, `macro_f1`, `weighted_f1`, `selected_for_test`).
-- `heldout_test_metrics.csv` — One-time evaluation of the validation winner on the untouched held-out test set.
-- `classification_report.txt` — Per-class precision, recall, F1, and support on the held-out test set.
-- `confusion_matrix.png` — Row-normalized confusion matrix on the held-out test set.
-- `feature_importance.csv` & `feature_importance.png` — Top global tree feature importances (non-causal).
-- `example_soc_alerts.csv` — Top 100 illustrative prioritized alerts with exploratory local feature deviations.
-- `run_metadata.json` — Complete experiment provenance, split sizes, rare-class counts/fallbacks, and caveats.
+## Use cases
 
-## Academic Citation
-Moustafa, N., & Slay, J. (2015). *UNSW-NB15: a comprehensive data set for network intrusion detection systems (UNSW-NB15 network data set)*. Military Communications and Information Systems Conference (MilCIS), IEEE.
+- **ML coursework and viva:** follow each cell from loading to conclusions; explain why validation and test data are separate.
+- **Offline attack-category research:** compare supervised models on labelled flows with a documented dataset and evaluation protocol.
+- **Rare-attack analysis:** inspect class-specific recall and confusion for Worms/Shellcode rather than relying on overall accuracy.
+- **Analyst workflow demonstration:** illustrate category-based prioritization and human-review queues using stored records.
+- **Reproducibility exercises:** compare the notebook and CLI under the same seed, versions and data source.
 
-## Multiclass ROC-AUC
+Axynetra has not been validated for live monitoring, automated response or production deployment. Domain shift, imbalance, duplicate/related flows and uncalibrated model scores require further study. An autoencoder is a possible future extension, not an implemented feature.
 
-Validation results now include one-vs-rest ROC-AUC for every candidate; held-out results include it for the validation winner. Scores use `predict_proba`, aligned to the classifier's class order. Model selection remains validation Macro F1.
+## Testing and publication
 
-- `roc_auc_ovr_macro`: the mean across all ten classes, available only when all ten class AUCs are defined.
-- `roc_auc_ovr_macro_supported`: the mean over defined classes, accompanied by `roc_auc_defined_classes` and `roc_auc_total_classes`. This subset average must not be presented as full ten-class AUC.
-- `validation_roc_auc.csv` and `heldout_test_roc_auc.csv`: per-class scores, support and reasons for undefined values (no positives, no negatives or a class absent from training).
-- `roc_curves.png`: held-out one-vs-rest ROC curves. The dashboard and regenerated report expose the new results.
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe tools/build_notebook.py --execute
+.\.venv\Scripts\python.exe -m pip check
+```
 
-Rerun the pipeline to create these artifacts. Existing local outputs do not gain ROC-AUC until regenerated. Smoke-test AUC remains synthetic and must not be reported as UNSW-NB15 performance. This change adds ROC-AUC; autoencoders remain a proposed extension.
+GitHub Actions runs unit/regression tests and executes the synthetic notebook. Unit tests cover leakage guards, filtering, sampling and ROC-AUC correctness, including undefined classes and reordered probability columns. Notebook execution checks the complete educational workflow. These do not measure real-data effectiveness.
 
-## Input checks and publication hygiene
+Dependencies are pinned; `requirements-notebook.txt` adds notebook execution dependencies to the normal development requirements. The full lock includes audit tooling; `python -m pip_audit` checks current known advisories when that tool is installed.
 
-- Missing or unknown attack categories are rejected, never silently labelled Normal.
-- Identical predictor rows crossing train/test boundaries are rejected before subsampling. Duplicate training predictors must be resolved before the validation split. Investigate duplicates rather than silently dropping them: any changed split must be disclosed in reported results.
-- Tiny sample limits that cannot represent every class are rejected. Sampling respects its exact row cap and preserves two examples per class when the cap permits.
-- Macro metrics use the same ten class labels for all candidates, including absent classes with zero contribution. They may differ from older generated results.
-- Metadata is written only after a completed run. A failed rerun cannot leave old completion metadata alongside partial new artifacts. Do not run multiple experiments into the same output directory concurrently.
-- Streamlit defaults to localhost and disables usage telemetry. Do not expose the dashboard publicly with private flow data; it is not an authenticated multi-user service. CSV downloads neutralize spreadsheet formula prefixes.
-- Generated results, raw CSVs, PDFs, logs, virtual environments, editor settings and common credential files are ignored by Git. Existing local reports predate these fixes: regenerate them before citing results.
-- The report SRN accepts only letters, digits, underscores and hyphens, preventing path traversal and report markup injection.
+Streamlit binds to localhost and usage telemetry is disabled. CSV downloads neutralize spreadsheet formulas. Datasets, local secrets, generated reports, environments and result directories are ignored. Only intentionally selected synthetic notebook outputs/README charts are published. See [REVIEW.md](REVIEW.md) for the review history and limits.
 
-See [REVIEW.md](REVIEW.md) for verification and remaining limits. No remote repository has been configured or pushed by this review.
+## Project files
+
+```text
+Axynetra_ML_Workflow.ipynb    Executed, explained notebook with synthetic outputs
+Axynetra_ML_Workflow.py       Matching Python cells, editable in VS Code
+tools/build_notebook.py      Generate/execute notebook from Python source
+multiclass_intrusion.py      Reusable helpers and CLI experiment runner
+dashboard.py                Offline Streamlit results viewer
+create_report.py            Academic PDF generator
+requirements*.txt           Runtime, development, notebook and lock dependencies
+tests/                      Unit, integration and regression tests
+docs/demo/                  Explicitly synthetic public demonstration charts
+.github/workflows/          Automated checks
+```
+
+## Reference
+
+Moustafa, N., & Slay, J. (2015). *UNSW-NB15: a comprehensive data set for network intrusion detection systems (UNSW-NB15 network data set).* MilCIS, IEEE.
+
+Implementation references: [scikit-learn Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html), [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html), [ROC-AUC](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html).

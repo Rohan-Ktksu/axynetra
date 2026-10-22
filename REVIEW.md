@@ -31,3 +31,11 @@ No claim of production readiness is made. Real data and any public multi-user de
 ## ROC-AUC extension — 22 October 2026
 
 Added probability-based one-vs-rest ROC-AUC to candidate validation metrics and winner held-out metrics, per-class CSVs, ROC plots, dashboard display and report-generation code. Full ten-class macro AUC is undefined when coverage is incomplete; a separately named supported-class mean reports its class count. Classifier selection remains validation Macro F1. All 22 tests passed, including comparison with scikit-learn's multiclass macro AUC, reordered probability columns, absent/single/unlearned classes and end-to-end artifact creation. Autoencoders are not implemented by this extension.
+
+## Educational notebook — 22 October 2026
+
+Added a 28-cell notebook with 13 executed code cells and matching percent-format Python source. It shows training-only EDA, input checks, preprocessing, explicit candidate training, validation selection, full-training refit, held-out metrics/ROC, feature signals and illustrative alerts. Its synthetic run matched the CLI's winner and held-out metrics. All 22 existing tests and the notebook-results dashboard rendering passed. CI now executes the synthetic notebook as well as tests.
+
+The README documents stage-by-stage outputs, artifact meanings, use cases, execution and limitations, with four explicitly synthetic figures and measured demonstration tables. The demo updater refuses metadata marked as real data. Saved notebook outputs are deliberately public synthetic examples; users must clear outputs before publishing sensitive real-data runs.
+
+A refreshed package audit found advisories in the previously installed Pillow and Certifi versions. Updated Pillow to 13.0.0 and Certifi to 2026.10.19, together with Streamlit 1.66.1 for Pillow 13 compatibility. Updated dependency pins and the full lock; compatibility checks passed, and the final audit reported no known vulnerabilities. Real UNSW-NB15 performance remains untested because source CSVs were not available.
