@@ -125,6 +125,9 @@ class TestAxynetraPipeline(unittest.TestCase):
                 "feature_importance.png",
                 "example_soc_alerts.csv",
                 "run_metadata.json",
+                "validation_roc_auc.csv",
+                "heldout_test_roc_auc.csv",
+                "roc_curves.png",
             ]
             for fname in expected_files:
                 self.assertTrue((out_dir / fname).exists(), f"Missing expected artifact: {fname}")
@@ -142,6 +145,9 @@ class TestAxynetraPipeline(unittest.TestCase):
             self.assertEqual(meta["best_model"], expected_winner)
             self.assertEqual(test_df_metrics.iloc[0]["model"], expected_winner)
             self.assertEqual(meta["fit_train_rows"] + meta["val_rows"], meta["train_rows"])
+            self.assertEqual(len(meta['heldout_test_roc_auc']), 10)
+            self.assertEqual(meta['heldout_test_evaluation']['roc_auc_defined_classes'], 10)
+            self.assertTrue(0 <= meta['heldout_test_evaluation']['roc_auc_ovr_macro'] <= 1)
 
             # Verify dashboard artifact loading helper
             bundle = dash.load_dashboard_artifacts(out_dir)

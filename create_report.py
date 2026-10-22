@@ -137,6 +137,8 @@ def generate_pdf(srn: str = 'SRNNO'):
         return Image(str(path), width=w, height=w * oh / ow)
 
     meta = json.loads((outputs / 'run_metadata.json').read_text(encoding='utf-8'))
+    auc_value = meta.get('heldout_test_evaluation', {}).get('roc_auc_ovr_macro')
+    auc_text = f'{auc_value:.4f}' if auc_value is not None else 'Unavailable: regenerate results or check per-class coverage'
     is_smoke = 'SYNTHETIC' in str(meta.get('dataset', '')).upper() or bool(meta.get('is_synthetic_smoke_test', False))
     eval_status = (
         'Synthetic pipeline smoke-test completed; official dataset experiment pending'
@@ -305,6 +307,7 @@ def generate_pdf(srn: str = 'SRNNO'):
                     ['Validation Macro-F1 winner', 'Pending execution with official UNSW-NB15 CSV files'],
                     ['Held-out test accuracy', 'Pending execution with official UNSW-NB15 CSV files'],
                     ['Held-out test Macro F1', 'Pending execution with official UNSW-NB15 CSV files'],
+                    ['Held-out test ROC-AUC (OvR macro)', 'Pending execution with official UNSW-NB15 CSV files'],
                     ['Rare-class recall (Worms / Shellcode)', 'Pending execution with official UNSW-NB15 CSV files'],
                 ],
                 [220, 255]
@@ -325,6 +328,7 @@ def generate_pdf(srn: str = 'SRNNO'):
                     ['Held-out test accuracy', f"{test_eval.get('accuracy', 0.0):.4f}"],
                     ['Held-out test Macro F1', f"{test_eval.get('macro_f1', 0.0):.4f}"],
                     ['Held-out test Weighted F1', f"{test_eval.get('weighted_f1', 0.0):.4f}"],
+                    ['Held-out test ROC-AUC (OvR macro)', auc_text],
                     ['Rare-class recall (Worms / Shellcode)', f"Worms: {worms_rec:.4f} | Shellcode: {shell_rec:.4f}"],
                 ],
                 [220, 255]

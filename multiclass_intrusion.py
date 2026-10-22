@@ -26,7 +26,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
                              ConfusionMatrixDisplay, f1_score, precision_score,
-                             recall_score)
+                             recall_score, roc_auc_score, roc_curve)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
@@ -247,6 +247,49 @@ def save_plot_confusion(y_true, y_pred, out, title):
     plt.close(fig)
 
 
+def compute_roc_metrics(y_true, probabilities, model_classes):
+    """One-vs-rest AUC, explicitly reporting classes for which it is undefined."""
+    truth = np.asarray(y_true)
+    probabilities = np.asarray(probabilities)
+    model_classes = list(model_classes)
+    if probabilities.shape != (len(truth), len(model_classes)) or not np.isfinite(probabilities).all():
+        raise ValueError('ROC-AUC requires finite probabilities aligned with model classes.')
+    rows = []
+    for label in CLASSES:
+        binary = truth == label
+        positives = int(binary.sum())
+        reason = ('no_positive_examples' if positives == 0 else
+                  'no_negative_examples' if positives == len(truth) else
+                  'class_not_learned' if label not in model_classes else '')
+        auc = None if reason else float(roc_auc_score(binary, probabilities[:, model_classes.index(label)]))
+        rows.append({'class': label, 'support': positives, 'roc_auc_ovr': auc,
+                     'status': reason or 'defined'})
+    defined = [r for r in rows if r['roc_auc_ovr'] is not None]
+    summary = {
+        'roc_auc_ovr_macro': float(np.mean([r['roc_auc_ovr'] for r in defined])) if len(defined) == len(CLASSES) else None,
+        'roc_auc_ovr_macro_supported': float(np.mean([r['roc_auc_ovr'] for r in defined])) if defined else None,
+        'roc_auc_defined_classes': len(defined),
+        'roc_auc_total_classes': len(CLASSES),
+    }
+    return summary, rows
+
+
+def save_plot_roc(y_true, probabilities, model_classes, rows, output, title):
+    fig, ax = plt.subplots(figsize=(9, 7))
+    for row in rows:
+        if row['roc_auc_ovr'] is None:
+            continue
+        label = row['class']
+        fpr, tpr, _ = roc_curve(np.asarray(y_true) == label, probabilities[:, list(model_classes).index(label)])
+        ax.plot(fpr, tpr, label=f"{label} (AUC={row['roc_auc_ovr']:.3f})")
+    ax.plot([0, 1], [0, 1], '--', color='gray', label='Chance')
+    ax.set(xlabel='False positive rate', ylabel='True positive rate', title=title + ' — one-vs-rest ROC')
+    ax.legend(loc='lower right', fontsize=8)
+    fig.tight_layout()
+    fig.savefig(output, dpi=150)
+    plt.close(fig)
+
+
 def compute_local_feature_signals(X_train_df, X_eval_df, top_k=3):
     """Compute illustrative per-row numeric z-score deviations from training medians.
 
@@ -335,6 +378,7 @@ def run(train, test, output, smoke, val_fraction=0.20):
     val_results = []
     val_fitted = {}
     val_predictions = {}
+    validation_roc_rows = []
     choices = model_choices()
     for name, estimator in choices.items():
         pipeline = Pipeline([
@@ -346,6 +390,9 @@ def run(train, test, output, smoke, val_fraction=0.20):
             pipeline.fit(X_tr_sub, y_tr_sub)
         val_pred = pipeline.predict(X_val)
         metrics_row = compute_metrics(y_val, val_pred, name, split_name='validation')
+        roc_summary, roc_rows = compute_roc_metrics(y_val, pipeline.predict_proba(X_val), pipeline.named_steps['classifier'].classes_)
+        metrics_row.update(roc_summary)
+        validation_roc_rows.extend(dict(row, model=name, split='validation') for row in roc_rows)
         val_results.append(metrics_row)
         val_fitted[name] = pipeline
         val_predictions[name] = val_pred
@@ -361,6 +408,7 @@ def run(train, test, output, smoke, val_fraction=0.20):
     # Save validation leaderboard (and model_comparison.csv for backward compatibility)
     df_val.to_csv(output / 'validation_leaderboard.csv', index=False)
     df_val.to_csv(output / 'model_comparison.csv', index=False)
+    pd.DataFrame(validation_roc_rows).to_csv(output / 'validation_roc_auc.csv', index=False)
     print('SELECTED BEST MODEL BY VALIDATION MACRO F1:', best)
 
     # 4. Refit ONLY the selected winning model on full training data and evaluate ONCE on held-out test set.
@@ -375,6 +423,11 @@ def run(train, test, output, smoke, val_fraction=0.20):
 
     test_pred = winner.predict(X_te)
     test_metrics = compute_metrics(y_te, test_pred, best, split_name='heldout_test')
+    prob = winner.predict_proba(X_te)
+    classes = winner.named_steps['classifier'].classes_
+    test_roc_summary, test_roc_rows = compute_roc_metrics(y_te, prob, classes)
+    test_metrics.update(test_roc_summary)
+    pd.DataFrame(test_roc_rows).to_csv(output / 'heldout_test_roc_auc.csv', index=False)
     pd.DataFrame([test_metrics]).to_csv(output / 'heldout_test_metrics.csv', index=False)
     print(f"[TEST] {best:18s} | Accuracy={test_metrics['accuracy']:.4f} | "
           f"Macro F1={test_metrics['macro_f1']:.4f} | Weighted F1={test_metrics['weighted_f1']:.4f}")
@@ -386,12 +439,13 @@ def run(train, test, output, smoke, val_fraction=0.20):
         f"Evaluation Split: Supplied held-out test set (one evaluation per run; not used for selection)\n"
         f"Train Rows: {len(train)} (Fit: {len(train_sub)}, Val: {len(val_sub)}) | Held-Out Test Rows: {len(test)}\n\n"
     )
-    full_report = report_header + report_body
+    full_report = report_header + report_body + '\nOne-vs-rest ROC-AUC:\n' + pd.DataFrame(test_roc_rows).to_string(index=False) + '\n' + json.dumps(test_roc_summary) + '\n'
     print('\nHeld-out test classification report:\n' + report_body)
     (output / 'classification_report.txt').write_text(full_report, encoding='utf-8')
 
     title_prefix = f"{best} ({'Synthetic Smoke Test' if smoke else 'UNSW-NB15 Held-Out Test'})"
     save_plot_confusion(y_te, test_pred, output / 'confusion_matrix.png', title_prefix)
+    save_plot_roc(y_te, prob, classes, test_roc_rows, output / 'roc_curves.png', title_prefix)
 
     # 5. Global feature importance for compatible tree models (fitted on training data only).
     tree_source_model = best
@@ -422,8 +476,6 @@ def run(train, test, output, smoke, val_fraction=0.20):
         plt.close(fig)
 
     # 6. Illustrative SOC triage queue; confidence is an uncalibrated model score, not operational risk.
-    prob = winner.predict_proba(X_te)
-    classes = winner.named_steps['classifier'].classes_
     confidence = np.max(prob, axis=1)
     predicted = classes[np.argmax(prob, axis=1)]
     alert = pd.DataFrame({
@@ -464,6 +516,8 @@ def run(train, test, output, smoke, val_fraction=0.20):
         'model_comparison': df_val.to_dict(orient='records'),
         'heldout_test_evaluation': test_metrics,
         'heldout_test_per_class': per_class_report_dict,
+        'heldout_test_roc_auc': test_roc_rows,
+        'roc_auc_method': 'One-vs-rest probabilities aligned by classifier classes_. Full macro requires all ten defined classes; supported macro excludes undefined classes and reports coverage. Selection remains validation Macro F1.',
         'caveat': (
             'Offline CSV analysis prototype only (not a live IDS). '
             'Do not treat model confidence as calibrated probability or deployment risk. '

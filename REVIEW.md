@@ -27,3 +27,7 @@ The copied virtual environment was rebuilt in place without inherited system pac
 The user removed the obsolete compiled test cache, and its absence was verified. The requested handoff document is removed. Follow-up scanning found no remaining references in project files or environment launchers; downloaded dependency libraries and package/audit/temporary caches were excluded from that scan. The existing PDF text was also checked earlier with no matching references found.
 
 No claim of production readiness is made. Real data and any public multi-user deployment need separate validation.
+
+## ROC-AUC extension — 22 October 2026
+
+Added probability-based one-vs-rest ROC-AUC to candidate validation metrics and winner held-out metrics, per-class CSVs, ROC plots, dashboard display and report-generation code. Full ten-class macro AUC is undefined when coverage is incomplete; a separately named supported-class mean reports its class count. Classifier selection remains validation Macro F1. All 22 tests passed, including comparison with scikit-learn's multiclass macro AUC, reordered probability columns, absent/single/unlearned classes and end-to-end artifact creation. Autoencoders are not implemented by this extension.

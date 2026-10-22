@@ -80,6 +80,17 @@ To replace the `SRNNO` placeholder once ready for submission:
 ## Academic Citation
 Moustafa, N., & Slay, J. (2015). *UNSW-NB15: a comprehensive data set for network intrusion detection systems (UNSW-NB15 network data set)*. Military Communications and Information Systems Conference (MilCIS), IEEE.
 
+## Multiclass ROC-AUC
+
+Validation results now include one-vs-rest ROC-AUC for every candidate; held-out results include it for the validation winner. Scores use `predict_proba`, aligned to the classifier's class order. Model selection remains validation Macro F1.
+
+- `roc_auc_ovr_macro`: the mean across all ten classes, available only when all ten class AUCs are defined.
+- `roc_auc_ovr_macro_supported`: the mean over defined classes, accompanied by `roc_auc_defined_classes` and `roc_auc_total_classes`. This subset average must not be presented as full ten-class AUC.
+- `validation_roc_auc.csv` and `heldout_test_roc_auc.csv`: per-class scores, support and reasons for undefined values (no positives, no negatives or a class absent from training).
+- `roc_curves.png`: held-out one-vs-rest ROC curves. The dashboard and regenerated report expose the new results.
+
+Rerun the pipeline to create these artifacts. Existing local outputs do not gain ROC-AUC until regenerated. Smoke-test AUC remains synthetic and must not be reported as UNSW-NB15 performance. This change adds ROC-AUC; autoencoders remain a proposed extension.
+
 ## Input checks and publication hygiene
 
 - Missing or unknown attack categories are rejected, never silently labelled Normal.

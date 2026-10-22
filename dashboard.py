@@ -115,6 +115,13 @@ def render_dashboard(root=Path('outputs')):
     st.caption('Evaluated exactly once using the single winning model selected on the validation split.')
     if not bundle['test_metrics_df'].empty:
         st.dataframe(bundle['test_metrics_df'], hide_index=True, width='stretch')
+    st.caption('ROC-AUC uses one-vs-rest probability scores. Full macro requires all ten classes; supported macro averages only defined classes. Missing positives, negatives or learned classes are reported as undefined. Model selection still uses validation Macro F1.')
+    roc_path = bundle['root'] / 'heldout_test_roc_auc.csv'
+    if roc_path.exists():
+        st.dataframe(pd.read_csv(roc_path), hide_index=True, width='stretch')
+    roc_plot = bundle['root'] / 'roc_curves.png'
+    if roc_plot.exists():
+        st.image(str(roc_plot), caption='Held-out one-vs-rest ROC curves', width='stretch')
 
     col_cm, col_rep = st.columns([1.15, 1.0])
     with col_cm:
