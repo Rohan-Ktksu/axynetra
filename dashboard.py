@@ -174,4 +174,8 @@ def safe_csv(frame):
 
 
 if __name__ == '__main__':
-    render_dashboard()
+    import argparse
+    parser = argparse.ArgumentParser(description='View saved Axynetra experiment artifacts.')
+    parser.add_argument('--results', type=Path, default=Path('outputs'), help='Artifact directory to display')
+    args = parser.parse_args()
+    render_dashboard(args.results)
