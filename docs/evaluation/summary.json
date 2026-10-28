@@ -1,0 +1,550 @@
+{
+  "meta": {
+    "project": "Axynetra \u2014 Explainable Network Threat Classification & Intelligent Alert Triage",
+    "dataset": "UNSW-NB15 community mirror; cleaned, sampled, modified split",
+    "is_synthetic_smoke_test": false,
+    "train_rows": 10000,
+    "fit_train_rows": 8000,
+    "val_rows": 2000,
+    "test_rows": 5000,
+    "predictor_count": 42,
+    "predictor_columns": [
+      "dur",
+      "proto",
+      "service",
+      "state",
+      "spkts",
+      "dpkts",
+      "sbytes",
+      "dbytes",
+      "rate",
+      "sttl",
+      "dttl",
+      "sload",
+      "dload",
+      "sloss",
+      "dloss",
+      "sinpkt",
+      "dinpkt",
+      "sjit",
+      "djit",
+      "swin",
+      "stcpb",
+      "dtcpb",
+      "dwin",
+      "tcprtt",
+      "synack",
+      "ackdat",
+      "smean",
+      "dmean",
+      "trans_depth",
+      "response_body_len",
+      "ct_srv_src",
+      "ct_state_ttl",
+      "ct_dst_ltm",
+      "ct_src_dport_ltm",
+      "ct_dst_sport_ltm",
+      "ct_dst_src_ltm",
+      "is_ftp_login",
+      "ct_ftp_cmd",
+      "ct_flw_http_mthd",
+      "ct_src_ltm",
+      "ct_srv_dst",
+      "is_sm_ips_ports"
+    ],
+    "numeric_predictors": [
+      "dur",
+      "spkts",
+      "dpkts",
+      "sbytes",
+      "dbytes",
+      "rate",
+      "sttl",
+      "dttl",
+      "sload",
+      "dload",
+      "sloss",
+      "dloss",
+      "sinpkt",
+      "dinpkt",
+      "sjit",
+      "djit",
+      "swin",
+      "stcpb",
+      "dtcpb",
+      "dwin",
+      "tcprtt",
+      "synack",
+      "ackdat",
+      "smean",
+      "dmean",
+      "trans_depth",
+      "response_body_len",
+      "ct_srv_src",
+      "ct_state_ttl",
+      "ct_dst_ltm",
+      "ct_src_dport_ltm",
+      "ct_dst_sport_ltm",
+      "ct_dst_src_ltm",
+      "is_ftp_login",
+      "ct_ftp_cmd",
+      "ct_flw_http_mthd",
+      "ct_src_ltm",
+      "ct_srv_dst",
+      "is_sm_ips_ports"
+    ],
+    "categorical_predictors": [
+      "proto",
+      "service",
+      "state"
+    ],
+    "transformed_feature_count": 75,
+    "excluded_leakage_columns": [
+      "attack_cat",
+      "id",
+      "label"
+    ],
+    "selection_protocol": "Stratified validation split created from training data only. Candidate models are ranked strictly by validation macro_f1. The winning model is evaluated once per run on the supplied held-out test set.",
+    "best_model": "Random Forest",
+    "feature_importance_model": "Random Forest",
+    "validation_split_info": {
+      "val_fraction": 0.2,
+      "fit_train_rows": 8000,
+      "val_rows": 2000,
+      "fit_train_class_counts": {
+        "Normal": 4163,
+        "Exploits": 1484,
+        "Fuzzers": 1177,
+        "Reconnaissance": 500,
+        "Generic": 314,
+        "DoS": 200,
+        "Shellcode": 87,
+        "Backdoor": 33,
+        "Analysis": 32,
+        "Worms": 10
+      },
+      "val_class_counts": {
+        "Normal": 1041,
+        "Exploits": 371,
+        "Fuzzers": 294,
+        "Reconnaissance": 125,
+        "Generic": 79,
+        "DoS": 50,
+        "Shellcode": 22,
+        "Backdoor": 8,
+        "Analysis": 8,
+        "Worms": 2
+      },
+      "rare_class_fallbacks": [],
+      "rare_class_policy": "Classes with >=2 training rows are guaranteed >=1 row in train_sub and >=1 row in val_sub. Classes with 1 row fall back to train_sub only and are logged in rare_class_fallbacks."
+    },
+    "validation_leaderboard": [
+      {
+        "model": "Random Forest",
+        "split": "validation",
+        "accuracy": 0.832,
+        "macro_precision": 0.5737508231449431,
+        "macro_recall": 0.5452648286577878,
+        "macro_f1": 0.5447360275184052,
+        "weighted_f1": 0.8305129492290808,
+        "roc_auc_ovr_macro": 0.9775601658102738,
+        "roc_auc_ovr_macro_supported": 0.9775601658102738,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": true
+      },
+      {
+        "model": "Decision Tree",
+        "split": "validation",
+        "accuracy": 0.7745,
+        "macro_precision": 0.5098450068507911,
+        "macro_recall": 0.6276606520127669,
+        "macro_f1": 0.5435247254720561,
+        "weighted_f1": 0.7900914459701784,
+        "roc_auc_ovr_macro": 0.8260898586215216,
+        "roc_auc_ovr_macro_supported": 0.8260898586215216,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      },
+      {
+        "model": "Extra Trees",
+        "split": "validation",
+        "accuracy": 0.7855,
+        "macro_precision": 0.5192554459692071,
+        "macro_recall": 0.6165202796969833,
+        "macro_f1": 0.5370257953039117,
+        "weighted_f1": 0.7994290513208118,
+        "roc_auc_ovr_macro": 0.9696395280539948,
+        "roc_auc_ovr_macro_supported": 0.9696395280539948,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      },
+      {
+        "model": "Logistic Regression",
+        "split": "validation",
+        "accuracy": 0.7035,
+        "macro_precision": 0.43925427063346245,
+        "macro_recall": 0.6698917543448639,
+        "macro_f1": 0.4491527134238778,
+        "weighted_f1": 0.7406767723330989,
+        "roc_auc_ovr_macro": 0.9415882525174611,
+        "roc_auc_ovr_macro_supported": 0.9415882525174611,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      }
+    ],
+    "model_comparison": [
+      {
+        "model": "Random Forest",
+        "split": "validation",
+        "accuracy": 0.832,
+        "macro_precision": 0.5737508231449431,
+        "macro_recall": 0.5452648286577878,
+        "macro_f1": 0.5447360275184052,
+        "weighted_f1": 0.8305129492290808,
+        "roc_auc_ovr_macro": 0.9775601658102738,
+        "roc_auc_ovr_macro_supported": 0.9775601658102738,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": true
+      },
+      {
+        "model": "Decision Tree",
+        "split": "validation",
+        "accuracy": 0.7745,
+        "macro_precision": 0.5098450068507911,
+        "macro_recall": 0.6276606520127669,
+        "macro_f1": 0.5435247254720561,
+        "weighted_f1": 0.7900914459701784,
+        "roc_auc_ovr_macro": 0.8260898586215216,
+        "roc_auc_ovr_macro_supported": 0.8260898586215216,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      },
+      {
+        "model": "Extra Trees",
+        "split": "validation",
+        "accuracy": 0.7855,
+        "macro_precision": 0.5192554459692071,
+        "macro_recall": 0.6165202796969833,
+        "macro_f1": 0.5370257953039117,
+        "weighted_f1": 0.7994290513208118,
+        "roc_auc_ovr_macro": 0.9696395280539948,
+        "roc_auc_ovr_macro_supported": 0.9696395280539948,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      },
+      {
+        "model": "Logistic Regression",
+        "split": "validation",
+        "accuracy": 0.7035,
+        "macro_precision": 0.43925427063346245,
+        "macro_recall": 0.6698917543448639,
+        "macro_f1": 0.4491527134238778,
+        "weighted_f1": 0.7406767723330989,
+        "roc_auc_ovr_macro": 0.9415882525174611,
+        "roc_auc_ovr_macro_supported": 0.9415882525174611,
+        "roc_auc_defined_classes": 10,
+        "roc_auc_total_classes": 10,
+        "selected_for_test": false
+      }
+    ],
+    "heldout_test_evaluation": {
+      "model": "Random Forest",
+      "split": "heldout_test",
+      "accuracy": 0.733,
+      "macro_precision": 0.4379881772109876,
+      "macro_recall": 0.5706071122872681,
+      "macro_f1": 0.44609434950475385,
+      "weighted_f1": 0.763076234634254,
+      "roc_auc_ovr_macro": 0.9033529977179213,
+      "roc_auc_ovr_macro_supported": 0.9033529977179213,
+      "roc_auc_defined_classes": 10,
+      "roc_auc_total_classes": 10
+    },
+    "heldout_test_per_class": {
+      "Normal": {
+        "precision": 0.9780085522296884,
+        "recall": 0.6651433319484836,
+        "f1-score": 0.7917903066271019,
+        "support": 2407.0
+      },
+      "Analysis": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 38.0
+      },
+      "Backdoor": {
+        "precision": 0.1415525114155251,
+        "recall": 0.7948717948717948,
+        "f1-score": 0.24031007751937986,
+        "support": 39.0
+      },
+      "DoS": {
+        "precision": 0.25925925925925924,
+        "recall": 0.04964539007092199,
+        "f1-score": 0.08333333333333333,
+        "support": 141.0
+      },
+      "Exploits": {
+        "precision": 0.7134146341463414,
+        "recall": 0.740506329113924,
+        "f1-score": 0.7267080745341615,
+        "support": 632.0
+      },
+      "Fuzzers": {
+        "precision": 0.277179236043095,
+        "recall": 0.7201017811704835,
+        "f1-score": 0.4002828854314003,
+        "support": 393.0
+      },
+      "Generic": {
+        "precision": 0.9991039426523297,
+        "recall": 0.959552495697074,
+        "f1-score": 0.9789288849868305,
+        "support": 1162.0
+      },
+      "Reconnaissance": {
+        "precision": 0.6919191919191919,
+        "recall": 0.85625,
+        "f1-score": 0.7653631284916201,
+        "support": 160.0
+      },
+      "Shellcode": {
+        "precision": 0.3194444444444444,
+        "recall": 0.92,
+        "f1-score": 0.4742268041237113,
+        "support": 25.0
+      },
+      "Worms": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 3.0
+      },
+      "accuracy": 0.733,
+      "macro avg": {
+        "precision": 0.4379881772109876,
+        "recall": 0.5706071122872681,
+        "f1-score": 0.44609434950475385,
+        "support": 5000.0
+      },
+      "weighted avg": {
+        "precision": 0.8471208280886469,
+        "recall": 0.733,
+        "f1-score": 0.763076234634254,
+        "support": 5000.0
+      }
+    },
+    "heldout_test_roc_auc": [
+      {
+        "class": "Normal",
+        "support": 2407,
+        "roc_auc_ovr": 0.9661802388617464,
+        "status": "defined"
+      },
+      {
+        "class": "Analysis",
+        "support": 38,
+        "roc_auc_ovr": 0.5055474235770806,
+        "status": "defined"
+      },
+      {
+        "class": "Backdoor",
+        "support": 39,
+        "roc_auc_ovr": 0.9705523596876147,
+        "status": "defined"
+      },
+      {
+        "class": "DoS",
+        "support": 141,
+        "roc_auc_ovr": 0.8010601078060892,
+        "status": "defined"
+      },
+      {
+        "class": "Exploits",
+        "support": 632,
+        "roc_auc_ovr": 0.9285736020308805,
+        "status": "defined"
+      },
+      {
+        "class": "Fuzzers",
+        "support": 393,
+        "roc_auc_ovr": 0.8847210048211842,
+        "status": "defined"
+      },
+      {
+        "class": "Generic",
+        "support": 1162,
+        "roc_auc_ovr": 0.9950673310378414,
+        "status": "defined"
+      },
+      {
+        "class": "Reconnaissance",
+        "support": 160,
+        "roc_auc_ovr": 0.9874715909090909,
+        "status": "defined"
+      },
+      {
+        "class": "Shellcode",
+        "support": 25,
+        "roc_auc_ovr": 0.9956904522613066,
+        "status": "defined"
+      },
+      {
+        "class": "Worms",
+        "support": 3,
+        "roc_auc_ovr": 0.9986658661863785,
+        "status": "defined"
+      }
+    ],
+    "roc_auc_method": "One-vs-rest probabilities aligned by classifier classes_. Full macro requires all ten defined classes; supported macro excludes undefined classes and reports coverage. Selection remains validation Macro F1.",
+    "caveat": "Offline CSV analysis prototype only (not a live IDS). Do not treat model confidence as calibrated probability or deployment risk. Impurity-based feature importance is global and non-causal.",
+    "evaluated_at": "2026-10-28T02:24:52.554621+00:00",
+    "execution": {
+      "runtime": "Published Python reference evaluation",
+      "versions": {
+        "numpy": "2.5.4",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "matplotlib": "3.11.2"
+      }
+    },
+    "data_provenance": {
+      "dataset": "UNSW-NB15 community mirror; duplicate-controlled experiment",
+      "official_reference": "https://research.unsw.edu.au/projects/unsw-nb15-dataset",
+      "mirror_revision": "44bbd02b9e70f74dd915218d5eb702f125341ffc",
+      "raw_train_rows": 175341,
+      "raw_test_rows": 82332,
+      "predictors": 42,
+      "training_duplicate_predictor_rows": 74301,
+      "conflicting_training_groups": 1772,
+      "conflicting_training_rows_removed": 30528,
+      "remaining_same_label_duplicates_removed": 45545,
+      "overlapping_test_rows_removed": 8541,
+      "clean_train_rows": 99268,
+      "clean_test_rows": 73791,
+      "clean_train_class_counts": {
+        "Normal": 51661,
+        "Exploits": 18417,
+        "Fuzzers": 14602,
+        "Reconnaissance": 6209,
+        "Generic": 3904,
+        "DoS": 2477,
+        "Shellcode": 1085,
+        "Backdoor": 403,
+        "Analysis": 393,
+        "Worms": 117
+      },
+      "clean_test_class_counts": {
+        "Normal": 35528,
+        "Generic": 17149,
+        "Exploits": 9330,
+        "Fuzzers": 5801,
+        "Reconnaissance": 2358,
+        "DoS": 2085,
+        "Backdoor": 579,
+        "Analysis": 552,
+        "Shellcode": 365,
+        "Worms": 44
+      },
+      "test_duplicate_rows_retained": 21147,
+      "test_labels_used_to_clean_training": false,
+      "warning": "Modified split, not the unchanged official benchmark. Notebook defaults to stratified row caps. Original test duplicates are retained after cross-split overlap removal.",
+      "files": {
+        "data\\original\\UNSW_NB15_training-set.csv": {
+          "sha256": "bec7dd5ec88dc2a0ccc7a07879d338395ed7421750f675fd0339e07dfe0648fa",
+          "bytes": 32293018,
+          "download_url": "https://raw.githubusercontent.com/Nir-J/ML-Projects/44bbd02b9e70f74dd915218d5eb702f125341ffc/UNSW-Network_Packet_Classification/UNSW_NB15_training-set.csv"
+        },
+        "data\\original\\UNSW_NB15_testing-set.csv": {
+          "sha256": "734fe6642edf758f7c94d7d9149426b49d202fe8e7bf0bef47392489c3c0a559",
+          "bytes": 15380800,
+          "download_url": "https://raw.githubusercontent.com/Nir-J/ML-Projects/44bbd02b9e70f74dd915218d5eb702f125341ffc/UNSW-Network_Packet_Classification/UNSW_NB15_testing-set.csv"
+        },
+        "data\\UNSW_NB15_training_clean.csv": {
+          "sha256": "ba6fb307e844248eea1ee6ab66aa9e4173ca4667eb9dea9e614dc50a5ce08b76",
+          "bytes": 21258859
+        },
+        "data\\UNSW_NB15_testing_no_overlap.csv": {
+          "sha256": "c14e1b9f7de3a80dd1bb999b0e4cb711ec25ccf05ca7809cd35479a45bf989ea",
+          "bytes": 14616174
+        }
+      }
+    }
+  },
+  "images": {
+    "roc_curves": "evaluation/roc_curves.png",
+    "confusion_matrix": "evaluation/confusion_matrix.png",
+    "feature_importance": "evaluation/feature_importance.png"
+  },
+  "report": "Axynetra Evaluation Report (USER-SUPPLIED CSV SPLIT (SOURCE NOT VERIFIED))\nSelected Model (by Validation Macro F1): Random Forest\nEvaluation Split: Supplied held-out test set (one evaluation per run; not used for selection)\nTrain Rows: 10000 (Fit: 8000, Val: 2000) | Held-Out Test Rows: 5000\n\n                precision    recall  f1-score   support\n\n        Normal       0.98      0.67      0.79      2407\n      Analysis       0.00      0.00      0.00        38\n      Backdoor       0.14      0.79      0.24        39\n           DoS       0.26      0.05      0.08       141\n      Exploits       0.71      0.74      0.73       632\n       Fuzzers       0.28      0.72      0.40       393\n       Generic       1.00      0.96      0.98      1162\nReconnaissance       0.69      0.86      0.77       160\n     Shellcode       0.32      0.92      0.47        25\n         Worms       0.00      0.00      0.00         3\n\n      accuracy                           0.73      5000\n     macro avg       0.44      0.57      0.45      5000\n  weighted avg       0.85      0.73      0.76      5000\n\nOne-vs-rest ROC-AUC:\n         class  support  roc_auc_ovr  status\n        Normal     2407     0.966180 defined\n      Analysis       38     0.505547 defined\n      Backdoor       39     0.970552 defined\n           DoS      141     0.801060 defined\n      Exploits      632     0.928574 defined\n       Fuzzers      393     0.884721 defined\n       Generic     1162     0.995067 defined\nReconnaissance      160     0.987472 defined\n     Shellcode       25     0.995690 defined\n         Worms        3     0.998666 defined\n{\"roc_auc_ovr_macro\": 0.9033529977179213, \"roc_auc_ovr_macro_supported\": 0.9033529977179213, \"roc_auc_defined_classes\": 10, \"roc_auc_total_classes\": 10}\n",
+  "auc": [
+    {
+      "class": "Normal",
+      "support": 2407,
+      "roc_auc_ovr": 0.9661802388617464,
+      "status": "defined"
+    },
+    {
+      "class": "Analysis",
+      "support": 38,
+      "roc_auc_ovr": 0.5055474235770806,
+      "status": "defined"
+    },
+    {
+      "class": "Backdoor",
+      "support": 39,
+      "roc_auc_ovr": 0.9705523596876147,
+      "status": "defined"
+    },
+    {
+      "class": "DoS",
+      "support": 141,
+      "roc_auc_ovr": 0.8010601078060892,
+      "status": "defined"
+    },
+    {
+      "class": "Exploits",
+      "support": 632,
+      "roc_auc_ovr": 0.9285736020308805,
+      "status": "defined"
+    },
+    {
+      "class": "Fuzzers",
+      "support": 393,
+      "roc_auc_ovr": 0.8847210048211842,
+      "status": "defined"
+    },
+    {
+      "class": "Generic",
+      "support": 1162,
+      "roc_auc_ovr": 0.9950673310378414,
+      "status": "defined"
+    },
+    {
+      "class": "Reconnaissance",
+      "support": 160,
+      "roc_auc_ovr": 0.9874715909090909,
+      "status": "defined"
+    },
+    {
+      "class": "Shellcode",
+      "support": 25,
+      "roc_auc_ovr": 0.9956904522613066,
+      "status": "defined"
+    },
+    {
+      "class": "Worms",
+      "support": 3,
+      "roc_auc_ovr": 0.9986658661863785,
+      "status": "defined"
+    }
+  ]
+}

@@ -318,7 +318,13 @@ def compute_local_feature_signals(X_train_df, X_eval_df, top_k=3):
     return signals
 
 
-def run(train, test, output, smoke, val_fraction=0.20):
+def fit_experiment(train, test, output, smoke, val_fraction=0.20, progress=None):
+    """Train and select without evaluating test predictions; report real milestones."""
+    def report(fraction, message):
+        if progress is not None:
+            progress(fraction, message)
+
+    report(0.02, 'Checking predictors, labels, duplicates and split overlap')
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
 
@@ -377,10 +383,10 @@ def run(train, test, output, smoke, val_fraction=0.20):
     print('\n--- Phase 1: Stratified Validation Leaderboard (Model Selection) ---')
     val_results = []
     val_fitted = {}
-    val_predictions = {}
     validation_roc_rows = []
     choices = model_choices()
-    for name, estimator in choices.items():
+    for index, (name, estimator) in enumerate(choices.items()):
+        report(0.10 + index * 0.17, f'Training {name} and scoring validation records')
         pipeline = Pipeline([
             ('features', build_preprocessor(X_tr_sub)),
             ('classifier', clone(estimator))
@@ -395,7 +401,6 @@ def run(train, test, output, smoke, val_fraction=0.20):
         validation_roc_rows.extend(dict(row, model=name, split='validation') for row in roc_rows)
         val_results.append(metrics_row)
         val_fitted[name] = pipeline
-        val_predictions[name] = val_pred
         print(f"[VAL] {name:19s} | Accuracy={metrics_row['accuracy']:.4f} | "
               f"Macro F1={metrics_row['macro_f1']:.4f} | Weighted F1={metrics_row['weighted_f1']:.4f}")
 
@@ -411,8 +416,8 @@ def run(train, test, output, smoke, val_fraction=0.20):
     pd.DataFrame(validation_roc_rows).to_csv(output / 'validation_roc_auc.csv', index=False)
     print('SELECTED BEST MODEL BY VALIDATION MACRO F1:', best)
 
-    # 4. Refit ONLY the selected winning model on full training data and evaluate ONCE on held-out test set.
-    print('\n--- Phase 2: One-Time Held-Out Test Set Evaluation (Selected Winner Only) ---')
+    # 4. Refit ONLY the selected winner. Test predictions happen in a separate stage.
+    report(0.85, f'Selected {best}; refitting on all training records')
     winner = Pipeline([
         ('features', build_preprocessor(X_tr_full)),
         ('classifier', clone(choices[best]))
@@ -420,6 +425,27 @@ def run(train, test, output, smoke, val_fraction=0.20):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', FutureWarning)
         winner.fit(X_tr_full, y_tr_full)
+
+    report(1.0, f'Training complete: {best}. Held-out testing has not run yet.')
+    return {'train': train, 'test': test, 'feature_cols': feature_cols,
+            'output': output, 'smoke': smoke, 'winner': winner, 'best': best,
+            'df_val': df_val, 'val_fitted': val_fitted, 'split_meta': split_meta}
+
+
+def evaluate_experiment(fitted, progress=None):
+    """Evaluate an already-trained winner on its reserved test records and export."""
+    def report(fraction, message):
+        if progress is not None:
+            progress(fraction, message)
+
+    train, test = fitted['train'], fitted['test']
+    feature_cols, output, smoke = fitted['feature_cols'], fitted['output'], fitted['smoke']
+    winner, best = fitted['winner'], fitted['best']
+    df_val, val_fitted, split_meta = fitted['df_val'], fitted['val_fitted'], fitted['split_meta']
+    X_tr_full, X_te = train[feature_cols], test[feature_cols]
+    y_te = test['attack_cat'].astype(str)
+    tag = 'SYNTHETIC SMOKE TEST - NOT UNSW PERFORMANCE' if smoke else 'USER-SUPPLIED CSV SPLIT (SOURCE NOT VERIFIED)'
+    report(0.10, f'Testing {best} on {len(test):,} reserved records')
 
     test_pred = winner.predict(X_te)
     test_metrics = compute_metrics(y_te, test_pred, best, split_name='heldout_test')
@@ -437,16 +463,18 @@ def run(train, test, output, smoke, val_fraction=0.20):
         f"Axynetra Evaluation Report ({tag})\n"
         f"Selected Model (by Validation Macro F1): {best}\n"
         f"Evaluation Split: Supplied held-out test set (one evaluation per run; not used for selection)\n"
-        f"Train Rows: {len(train)} (Fit: {len(train_sub)}, Val: {len(val_sub)}) | Held-Out Test Rows: {len(test)}\n\n"
+        f"Train Rows: {len(train)} (Fit: {split_meta['fit_train_rows']}, Val: {split_meta['val_rows']}) | Held-Out Test Rows: {len(test)}\n\n"
     )
     full_report = report_header + report_body + '\nOne-vs-rest ROC-AUC:\n' + pd.DataFrame(test_roc_rows).to_string(index=False) + '\n' + json.dumps(test_roc_summary) + '\n'
     print('\nHeld-out test classification report:\n' + report_body)
     (output / 'classification_report.txt').write_text(full_report, encoding='utf-8')
 
+    report(0.40, 'Creating classification report, confusion matrix and ROC curves')
     title_prefix = f"{best} ({'Synthetic Smoke Test' if smoke else 'UNSW-NB15 Held-Out Test'})"
     save_plot_confusion(y_te, test_pred, output / 'confusion_matrix.png', title_prefix)
     save_plot_roc(y_te, prob, classes, test_roc_rows, output / 'roc_curves.png', title_prefix)
 
+    report(0.75, 'Exporting global feature importance and illustrative alerts')
     # 5. Global feature importance for compatible tree models (fitted on training data only).
     tree_source_model = best
     tree_pipeline = winner
@@ -499,10 +527,14 @@ def run(train, test, output, smoke, val_fraction=0.20):
         'dataset': 'SYNTHETIC SMOKE TEST ONLY' if smoke else 'User-supplied CSV split (source not verified)',
         'is_synthetic_smoke_test': bool(smoke),
         'train_rows': int(len(train)),
-        'fit_train_rows': int(len(train_sub)),
-        'val_rows': int(len(val_sub)),
+        'fit_train_rows': split_meta['fit_train_rows'],
+        'val_rows': split_meta['val_rows'],
         'test_rows': int(len(test)),
         'predictor_count': int(len(feature_cols)),
+        'predictor_columns': feature_cols,
+        'numeric_predictors': list(X_tr_full.select_dtypes(include='number').columns),
+        'categorical_predictors': [c for c in feature_cols if c not in X_tr_full.select_dtypes(include='number').columns],
+        'transformed_feature_count': int(len(winner.named_steps['features'].get_feature_names_out())),
         'excluded_leakage_columns': sorted(LEAKAGE_COLUMNS),
         'selection_protocol': (
             'Stratified validation split created from training data only. '
@@ -526,6 +558,19 @@ def run(train, test, output, smoke, val_fraction=0.20):
     }
     (output / 'run_metadata.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
     print('Output artifacts saved in:', output.resolve())
+    report(1.0, 'Held-out testing complete; all experiment outputs are ready')
+    return metadata, winner
+
+
+def run_experiment(train, test, output, smoke, val_fraction=0.20):
+    """Combined API for scripts; the website exposes training and testing separately."""
+    fitted = fit_experiment(train, test, output, smoke, val_fraction)
+    return evaluate_experiment(fitted)
+
+
+def run(train, test, output, smoke, val_fraction=0.20):
+    """Backward-compatible command-line/report API returning JSON-safe metadata."""
+    metadata, _ = run_experiment(train, test, output, smoke, val_fraction)
     return metadata
 
 

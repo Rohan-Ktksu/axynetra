@@ -3,6 +3,51 @@ Website Link: (https://rohan-ktksu.github.io/axynetra/model.html)
 
 **Explainable Network Threat Classification & Intelligent Alert Triage**
 
+
+**Project owner: Rohan Sai ([Rohan-Ktksu](https://github.com/Rohan-Ktksu)).**
+
+## Live model workspace (GitHub Pages)
+
+[Open the Axynetra website](https://rohan-ktksu.github.io/axynetra/) · [Model & Features](https://rohan-ktksu.github.io/axynetra/model.html)
+
+The website publishes from `docs/` on `codex/organized-prediction-website` under **Rohan-Ktksu**. Follow the guided experiment:
+
+1. Inspect the real data preview, source provenance and reserved split.
+2. Read the pipeline and exact Python code in a scrollable iframe.
+3. Click **Train Model** to load Python and the verified CSVs, train four candidates with visible progress, select on validation Macro F1, and refit the winner. Held-out testing has not run yet.
+4. Click **Test Model** to evaluate on the reserved test set. Inspect metrics, class reports, confusion/ROC charts, feature importance and alerts; download all outputs as a ZIP.
+5. Click **Predict** to classify bundled examples or an uploaded CSV through the same fitted pipeline. Labels are compared only after inference; changing examples does not retrain the model.
+
+The separate **Model & Features** page explains the workflow, all 42 inputs, leakage exclusions, exact settings and interpretation limits.
+
+It also shows saved reference accuracy, precision/recall/F1, ROC-AUC, ROC curves, the confusion matrix and feature importance immediately. After **Test Model**, that page uses your latest evaluation retained in the current browser tab; the result source is labelled. Run `python tools/build_website.py --evaluate` to recompute and refresh the published reference metrics and charts after changing model code.
+
+Actual Python/scikit-learn execution runs in a **Pyodide background Web Worker**. GitHub Pages serves the static website; no model server is required. The first visit downloads Python, scientific packages and public reference CSVs, so preparation can take several minutes depending on the network/device. Model state resets on refresh. Uploads are processed locally (up to 1,000 records / 5 MB), with a template available after testing.
+
+The experiment uses stratified caps of **10,000 training / 5,000 test records**, seed 42. Shared core code powers browser and command-line runs. Browser estimators use one thread, and runtime package versions are shown and exported; scores can differ from the pinned desktop environment. This is a cleaned, sampled, modified UNSW-NB15 split, not unchanged official benchmark performance.
+
+Website organization:
+
+- `docs/index.html`, `site.css`, `app.js`: guided workflow and outputs.
+- `docs/model.html`, `model.js`: complete model/feature explanation.
+- `docs/source.html`: scrollable Python source viewer.
+- `docs/worker.js`, `docs/runtime/browser_runner.py`: browser runtime and execution bridge.
+- `multiclass_intrusion.py`: shared `fit_experiment` and `evaluate_experiment` stages; existing `run` calls remain compatible.
+- `website_core.py`: verified data loading and validated inference.
+- `tools/build_website.py`: refreshes previews and shared Python copies in `docs/runtime/`.
+
+Refresh published Python copies and run checks after changing the shared core:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python tools/build_website.py
+python -m pytest -q
+python -m http.server 8502 --bind 127.0.0.1
+```
+
+For local preview open `http://127.0.0.1:8502/docs/`. The original saved-results viewer remains available through `python -m streamlit run dashboard.py` after generating command-line outputs.
+
+
 [![Open CSV notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb)
 
 **[Open the CSV notebook with saved outputs](reference/Axynetra_UNSW_NB15.ipynb)** · **[CSV data and notebook reference folder](reference/)**
