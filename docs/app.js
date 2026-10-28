@@ -95,6 +95,15 @@ async function initializePage() {
     if (data.kind === 'tested') {
       hasTested = true;
       const result = data.result, meta = result.meta, m = meta.heldout_test_evaluation;
+      try {
+        sessionStorage.setItem('axynetra-evaluation', JSON.stringify({
+          meta: {...meta, evaluated_at: new Date().toISOString()},
+          images: Object.fromEntries(Object.entries(result.images).map(([name, value])=>[name, 'data:image/png;base64,' + value])),
+          report: result.report, auc: result.auc,
+        }));
+      } catch {
+        $('runtime-note').textContent += ' This browser could not retain the results for the Model & Features page; that page will show the published reference run.';
+      }
       $('test-badge').textContent = 'TESTING COMPLETE'; $('test-step').classList.add('current');
       $('test-output').hidden = false;
       metrics($('test-metrics'),[['Held-out accuracy',(m.accuracy*100).toFixed(1)+'%'],['Macro F1',m.macro_f1.toFixed(4)],['Weighted F1',m.weighted_f1.toFixed(4)],['Test records',meta.test_rows.toLocaleString()]]);

@@ -92,6 +92,18 @@ class WebsiteFlow(unittest.TestCase):
         self.assertEqual(preview['train_rows'], 10000)
         self.assertEqual(preview['test_rows'], 5000)
 
+    def test_published_model_evaluation_is_complete_and_uses_reference_split(self):
+        saved = json.loads((ROOT / 'docs/evaluation/summary.json').read_text(encoding='utf-8'))
+        meta = saved['meta']
+        self.assertFalse(meta['is_synthetic_smoke_test'])
+        self.assertEqual((meta['train_rows'], meta['test_rows'], meta['predictor_count']), (10000, 5000, 42))
+        self.assertEqual(len(saved['auc']), 10)
+        self.assertEqual(sum(row['support'] for row in saved['auc']), 5000)
+        self.assertEqual(meta['best_model'], meta['heldout_test_evaluation']['model'])
+        for image in ['roc_curves', 'confusion_matrix', 'feature_importance']:
+            self.assertTrue((ROOT / 'docs' / saved['images'][image]).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
+        self.assertEqual(meta['data_provenance']['predictors'], 42)
+
 
 if __name__ == '__main__':
     unittest.main()

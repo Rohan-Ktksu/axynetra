@@ -3,7 +3,7 @@
 **Explainable Network Threat Classification & Intelligent Alert Triage**
 
 
-**Project owner: Rohan Ktksu ([Rohan-Ktksu](https://github.com/Rohan-Ktksu)).**
+**Project owner: Rohan Sai ([Rohan-Ktksu](https://github.com/Rohan-Ktksu)).**
 
 ## Live model workspace (GitHub Pages)
 
@@ -18,6 +18,8 @@ The website publishes from `docs/` on `codex/organized-prediction-website` under
 5. Click **Predict** to classify bundled examples or an uploaded CSV through the same fitted pipeline. Labels are compared only after inference; changing examples does not retrain the model.
 
 The separate **Model & Features** page explains the workflow, all 42 inputs, leakage exclusions, exact settings and interpretation limits.
+
+It also shows saved reference accuracy, precision/recall/F1, ROC-AUC, ROC curves, the confusion matrix and feature importance immediately. After **Test Model**, that page uses your latest evaluation retained in the current browser tab; the result source is labelled. Run `python tools/build_website.py --evaluate` to recompute and refresh the published reference metrics and charts after changing model code.
 
 Actual Python/scikit-learn execution runs in a **Pyodide background Web Worker**. GitHub Pages serves the static website; no model server is required. The first visit downloads Python, scientific packages and public reference CSVs, so preparation can take several minutes depending on the network/device. Model state resets on refresh. Uploads are processed locally (up to 1,000 records / 5 MB), with a template available after testing.
 
