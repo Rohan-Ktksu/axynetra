@@ -1,16 +1,14 @@
-"""Inference contracts and the actual Streamlit Predict button flow."""
+"""Staged training, inference contracts and synchronized GitHub Pages assets."""
+import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-from streamlit.testing.v1 import AppTest
 
 import multiclass_intrusion as mi
-import website
-from website_core import ROOT, predict_flows, prediction_inputs, read_prediction_csv
+from website_core import ROOT, FEATURE_GROUPS, predict_flows, prediction_inputs, read_prediction_csv
 
 
 class WebsiteFlow(unittest.TestCase):
@@ -20,7 +18,11 @@ class WebsiteFlow(unittest.TestCase):
         train, test = mi.make_smoke_data()
         cls.train = mi.stratified_subset(train, 400)
         cls.test = mi.stratified_subset(test, 150)
-        cls.meta, cls.model = mi.run_experiment(cls.train, cls.test, cls.folder.name, smoke=True)
+        cls.events = []
+        fitted = mi.fit_experiment(cls.train, cls.test, cls.folder.name, smoke=True,
+                                   progress=lambda n, text: cls.events.append((n, text)))
+        cls.outputs_before_testing = {p.name for p in Path(cls.folder.name).iterdir()}
+        cls.meta, cls.model = mi.evaluate_experiment(fitted)
 
     @classmethod
     def tearDownClass(cls):
@@ -63,42 +65,32 @@ class WebsiteFlow(unittest.TestCase):
         self.assertEqual(len(results), 2)
         self.assertNotIn('actual_attack', results)
 
-    def test_predict_button_and_stale_result_reset(self):
-        with patch.object(website, 'reference_data', return_value=(self.train, self.test)), \
-             patch.object(website, 'experiment', return_value=(self.meta, self.model)):
-            app = AppTest.from_string('from website import render_predict\nrender_predict()').run()
-            self.assertFalse(app.exception)
-            app.button[0].click().run()
-            self.assertFalse(app.exception)
-            self.assertIn('Prediction complete', app.success[0].value)
-            results = app.session_state['prediction_output'][0]
-            self.assertEqual(len(results), 10)
-            self.assertEqual(set(results.predicted_attack) - set(mi.CLASSES), set())
-            app.selectbox[0].select('Worms').run()
-            self.assertFalse(app.exception)
-            self.assertEqual(len(app.success), 0)
+    def test_training_does_not_evaluate_heldout_test_and_reports_real_progress(self):
+        self.assertIn('validation_leaderboard.csv', self.outputs_before_testing)
+        self.assertNotIn('heldout_test_metrics.csv', self.outputs_before_testing)
+        self.assertNotIn('run_metadata.json', self.outputs_before_testing)
+        self.assertEqual(self.events[-1][0], 1.0)
+        self.assertEqual([n for n, _ in self.events], sorted(n for n, _ in self.events))
+        for name in mi.model_choices():
+            self.assertTrue(any('Training ' + name in message for _, message in self.events))
+        self.assertTrue((Path(self.folder.name) / 'heldout_test_metrics.csv').is_file())
 
-    def test_results_page_contains_evaluation_and_downloads(self):
-        with patch.object(website, 'experiment', return_value=(self.meta, self.model)), \
-             patch.object(website, 'OUTPUT', Path(self.folder.name)):
-            app = AppTest.from_string('from website import render_results\nrender_results()')
-            app.session_state['experiment_ready'] = True
-            app.run()
-            self.assertFalse(app.exception)
-            self.assertEqual([tab.label for tab in app.tabs], [
-                'Model comparison', 'Held-out evaluation', 'Feature importance', 'Alert queue', 'Downloads'])
-            self.assertTrue(any(metric.label == 'Held-out Macro F1' for metric in app.metric))
+    def test_browser_core_copies_match_executed_code(self):
+        for name in ['multiclass_intrusion.py', 'website_core.py']:
+            self.assertEqual((ROOT / name).read_bytes(), (ROOT / 'docs/runtime' / name).read_bytes(),
+                             'Run python tools/build_website.py after core edits.')
 
     def test_model_page_covers_the_actual_42_features(self):
         header = pd.read_csv(ROOT / 'reference/data/UNSW_NB15_training_clean.csv', nrows=0)
         predictors = mi.get_predictor_columns(header, header)
-        documented = [name for names, _ in website.FEATURE_GROUPS.values() for name in names.split()]
+        documented = [name for names, _ in FEATURE_GROUPS.values() for name in names.split()]
         self.assertEqual(len(predictors), 42)
         self.assertEqual(set(predictors), set(documented))
         self.assertEqual(len(documented), len(set(documented)))
-        app = AppTest.from_string('from website import render_model\nrender_model()').run(timeout=30)
-        self.assertFalse(app.exception)
-        self.assertEqual(len(app.dataframe[0].value), 42)
+        preview = json.loads((ROOT / 'docs/site-data.json').read_text(encoding='utf-8'))
+        self.assertEqual({f['feature'] for f in preview['features']}, set(predictors))
+        self.assertEqual(preview['train_rows'], 10000)
+        self.assertEqual(preview['test_rows'], 5000)
 
 
 if __name__ == '__main__':

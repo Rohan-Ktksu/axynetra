@@ -2,40 +2,48 @@
 
 **Explainable Network Threat Classification & Intelligent Alert Triage**
 
+
 **Project owner: Rohan Ktksu ([Rohan-Ktksu](https://github.com/Rohan-Ktksu)).**
 
-## Interactive website
+## Live model workspace (GitHub Pages)
 
-```powershell
-python -m pip install -r requirements.txt
-python -m streamlit run dashboard.py
-```
+[Open the Axynetra website](https://rohan-ktksu.github.io/axynetra/) · [Model & Features](https://rohan-ktksu.github.io/axynetra/model.html)
 
-The website opens without requiring a pre-generated `outputs/` folder:
+The website publishes from `docs/` on `codex/organized-prediction-website` under **Rohan-Ktksu**. Follow the guided experiment:
 
-- **Overview:** project introduction, dataset provenance and model preparation.
-- **Predict:** select bundled test records or upload a CSV, then press **Predict**. The first prediction prepares the experiment; subsequent predictions reuse its fitted winning pipeline. Inspect actual vs predicted labels, class scores and review flags, then download predictions.
-- **Results:** validation leaderboard, held-out metrics, confusion matrix, ROC curves, source-labelled feature importance, filtered alerts, and a ZIP of all experiment outputs.
-- **Model & Features:** [full workflow explanation](docs/model_and_features.md), all 42 predictors grouped by purpose, exclusions, preprocessing, exact classifier parameters and source-code links.
+1. Inspect the real data preview, source provenance and reserved split.
+2. Read the pipeline and exact Python code in a scrollable iframe.
+3. Click **Train Model** to load Python and the verified CSVs, train four candidates with visible progress, select on validation Macro F1, and refit the winner. Held-out testing has not run yet.
+4. Click **Test Model** to evaluate on the reserved test set. Inspect metrics, class reports, confusion/ROC charts, feature importance and alerts; download all outputs as a ZIP.
+5. Click **Predict** to classify bundled examples or an uploaded CSV through the same fitted pipeline. Labels are compared only after inference; changing examples does not retrain the model.
 
-The website uses the bundled cleaned reference CSVs with stratified caps of **10,000 training / 5,000 test records**, seed 42. Hashes are verified before training. Four classifiers compete on validation Macro F1; the selected winner is refitted on training and evaluated in one held-out stage per run. Predictions use that same pipeline. The first run can take a few minutes; the server caches the prepared model in memory until restart. No model download or separate dataset setup is required.
+The separate **Model & Features** page explains the workflow, all 42 inputs, leakage exclusions, exact settings and interpretation limits.
 
-CSV uploads accept all 42 feature columns (download a template on Predict), at most **1,000 records / 5 MB**. Optional `id`, `label` and `attack_cat` columns are excluded from inference. Malformed headers, missing features and invalid/infinite numeric inputs are rejected; blank features use the fitted imputers. Uploaded flows and interactive predictions remain in the current session and do not modify training or evaluation results.
+Actual Python/scikit-learn execution runs in a **Pyodide background Web Worker**. GitHub Pages serves the static website; no model server is required. The first visit downloads Python, scientific packages and public reference CSVs, so preparation can take several minutes depending on the network/device. Model state resets on refresh. Uploads are processed locally (up to 1,000 records / 5 MB), with a template available after testing.
 
-Website code is organized in `website.py` (pages) and `website_core.py` (verified data loading and validated inference). It reuses `multiclass_intrusion.run_experiment`, which returns metadata and the fitted winner. The existing `run` API still returns metadata for command-line/report callers. Website evaluation artifacts are grouped in **`outputs/website/`**; synthetic notebook outputs remain separate. This is a cleaned, sampled UNSW-NB15 experiment, not the unchanged official benchmark or a live IDS.
+The experiment uses stratified caps of **10,000 training / 5,000 test records**, seed 42. Shared core code powers browser and command-line runs. Browser estimators use one thread, and runtime package versions are shown and exported; scores can differ from the pinned desktop environment. This is a cleaned, sampled, modified UNSW-NB15 split, not unchanged official benchmark performance.
 
-To inspect older offline artifacts, the original viewer remains available:
+Website organization:
 
-```powershell
-python -m streamlit run dashboard.py -- --results outputs
-```
+- `docs/index.html`, `site.css`, `app.js`: guided workflow and outputs.
+- `docs/model.html`, `model.js`: complete model/feature explanation.
+- `docs/source.html`: scrollable Python source viewer.
+- `docs/worker.js`, `docs/runtime/browser_runner.py`: browser runtime and execution bridge.
+- `multiclass_intrusion.py`: shared `fit_experiment` and `evaluate_experiment` stages; existing `run` calls remain compatible.
+- `website_core.py`: verified data loading and validated inference.
+- `tools/build_website.py`: refreshes previews and shared Python copies in `docs/runtime/`.
 
-Website regression checks (including an actual Streamlit Predict-button test):
+Refresh published Python copies and run checks after changing the shared core:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
+python tools/build_website.py
 python -m pytest -q
+python -m http.server 8502 --bind 127.0.0.1
 ```
+
+For local preview open `http://127.0.0.1:8502/docs/`. The original saved-results viewer remains available through `python -m streamlit run dashboard.py` after generating command-line outputs.
+
 
 [![Open CSV notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb)
 

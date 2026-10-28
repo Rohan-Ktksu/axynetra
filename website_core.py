@@ -14,6 +14,17 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / 'reference' / 'data'
 MAX_UPLOAD_ROWS = 1000
 
+FEATURE_GROUPS = {
+    'Connection context': ('dur proto service state', 'Flow duration, protocol, service and connection state.'),
+    'Traffic volume': ('spkts dpkts sbytes dbytes rate sload dload smean dmean', 'Directional packets, bytes, transfer rates and mean packet sizes.'),
+    'Packet behavior': ('sttl dttl sloss dloss', 'Directional time-to-live and retransmission/loss measurements.'),
+    'Timing': ('sinpkt dinpkt sjit djit tcprtt synack ackdat', 'Packet spacing, jitter and TCP handshake timings.'),
+    'TCP state': ('swin dwin stcpb dtcpb', 'Directional TCP window sizes and sequence-number bases.'),
+    'Application activity': ('trans_depth response_body_len is_ftp_login ct_ftp_cmd ct_flw_http_mthd', 'HTTP transaction depth, response size and HTTP/FTP activity.'),
+    'Connection history': ('ct_srv_src ct_state_ttl ct_dst_ltm ct_src_dport_ltm ct_dst_sport_ltm ct_dst_src_ltm ct_src_ltm ct_srv_dst', 'Dataset-supplied counts of recent repeated services, endpoints, ports and state/TTL combinations.'),
+    'Endpoint indicator': ('is_sm_ips_ports', 'Whether the supplied flow has matching source/destination IPs and ports.'),
+}
+
 
 def load_reference_data(max_train=10000, max_test=5000):
     """Verify the bundled files, then use the CLI's overlap checks and sampling."""

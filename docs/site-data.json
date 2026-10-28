@@ -1,0 +1,667 @@
+{
+  "owner": "Rohan Ktksu",
+  "account": "Rohan-Ktksu",
+  "train_rows": 10000,
+  "test_rows": 5000,
+  "fit_rows": 8000,
+  "classes": [
+    "Normal",
+    "Analysis",
+    "Backdoor",
+    "DoS",
+    "Exploits",
+    "Fuzzers",
+    "Generic",
+    "Reconnaissance",
+    "Shellcode",
+    "Worms"
+  ],
+  "preview": [
+    {
+      "id": 118490,
+      "dur": 0.496582,
+      "proto": "tcp",
+      "service": "-",
+      "state": "FIN",
+      "spkts": 12,
+      "dpkts": 8,
+      "sbytes": 2026,
+      "dbytes": 738,
+      "rate": 38.261556,
+      "sttl": 254,
+      "dttl": 252,
+      "sload": 29932.61914,
+      "dload": 10407.14356,
+      "sloss": 3,
+      "dloss": 2,
+      "sinpkt": 42.135454,
+      "dinpkt": 60.997,
+      "sjit": 2435.467035,
+      "djit": 83.190391,
+      "swin": 255,
+      "stcpb": 1252734582,
+      "dtcpb": 1985114943,
+      "dwin": 255,
+      "tcprtt": 0.115997,
+      "synack": 0.0696,
+      "ackdat": 0.046397,
+      "smean": 169,
+      "dmean": 92,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 2,
+      "ct_state_ttl": 1,
+      "ct_dst_ltm": 2,
+      "ct_src_dport_ltm": 2,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 2,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 2,
+      "ct_srv_dst": 2,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Fuzzers",
+      "label": 1
+    },
+    {
+      "id": 31661,
+      "dur": 0.004187,
+      "proto": "udp",
+      "service": "-",
+      "state": "CON",
+      "spkts": 4,
+      "dpkts": 4,
+      "sbytes": 568,
+      "dbytes": 312,
+      "rate": 1671.84142,
+      "sttl": 31,
+      "dttl": 29,
+      "sload": 813947.9375,
+      "dload": 447098.1563,
+      "sloss": 0,
+      "dloss": 0,
+      "sinpkt": 1.106667,
+      "dinpkt": 0.928667,
+      "sjit": 1.55658,
+      "djit": 1.309091,
+      "swin": 0,
+      "stcpb": 0,
+      "dtcpb": 0,
+      "dwin": 0,
+      "tcprtt": 0.0,
+      "synack": 0.0,
+      "ackdat": 0.0,
+      "smean": 142,
+      "dmean": 78,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 7,
+      "ct_state_ttl": 0,
+      "ct_dst_ltm": 2,
+      "ct_src_dport_ltm": 1,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 6,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 3,
+      "ct_srv_dst": 6,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Normal",
+      "label": 0
+    },
+    {
+      "id": 3657,
+      "dur": 0.897934,
+      "proto": "tcp",
+      "service": "-",
+      "state": "FIN",
+      "spkts": 16,
+      "dpkts": 18,
+      "sbytes": 1540,
+      "dbytes": 1644,
+      "rate": 36.75103,
+      "sttl": 31,
+      "dttl": 29,
+      "sload": 12865.08789,
+      "dload": 13836.20606,
+      "sloss": 4,
+      "dloss": 4,
+      "sinpkt": 59.840467,
+      "dinpkt": 52.792648,
+      "sjit": 3970.491765,
+      "djit": 92.521078,
+      "swin": 255,
+      "stcpb": 3254371236,
+      "dtcpb": 3315850486,
+      "dwin": 255,
+      "tcprtt": 0.000569,
+      "synack": 0.000455,
+      "ackdat": 0.000114,
+      "smean": 96,
+      "dmean": 91,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 12,
+      "ct_state_ttl": 0,
+      "ct_dst_ltm": 6,
+      "ct_src_dport_ltm": 6,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 7,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 6,
+      "ct_srv_dst": 7,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Normal",
+      "label": 0
+    },
+    {
+      "id": 32813,
+      "dur": 0.082602,
+      "proto": "tcp",
+      "service": "smtp",
+      "state": "FIN",
+      "spkts": 52,
+      "dpkts": 42,
+      "sbytes": 37210,
+      "dbytes": 3380,
+      "rate": 1125.880706,
+      "sttl": 31,
+      "dttl": 29,
+      "sload": 3534539.0,
+      "dload": 319604.8438,
+      "sloss": 18,
+      "dloss": 8,
+      "sinpkt": 1.64524,
+      "dinpkt": 1.991219,
+      "sjit": 196.767019,
+      "djit": 6.502285,
+      "swin": 255,
+      "stcpb": 1180538656,
+      "dtcpb": 3327291076,
+      "dwin": 255,
+      "tcprtt": 0.001082,
+      "synack": 0.000958,
+      "ackdat": 0.000124,
+      "smean": 716,
+      "dmean": 80,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 1,
+      "ct_state_ttl": 0,
+      "ct_dst_ltm": 2,
+      "ct_src_dport_ltm": 1,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 1,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 6,
+      "ct_srv_dst": 1,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Normal",
+      "label": 0
+    },
+    {
+      "id": 24703,
+      "dur": 0.030872,
+      "proto": "tcp",
+      "service": "-",
+      "state": "FIN",
+      "spkts": 72,
+      "dpkts": 74,
+      "sbytes": 4238,
+      "dbytes": 63516,
+      "rate": 4696.812588,
+      "sttl": 31,
+      "dttl": 29,
+      "sload": 1083182.125,
+      "dload": 16236849.0,
+      "sloss": 7,
+      "dloss": 30,
+      "sinpkt": 0.436643,
+      "dinpkt": 0.419458,
+      "sjit": 22.495334,
+      "djit": 22.138223,
+      "swin": 255,
+      "stcpb": 281940425,
+      "dtcpb": 2431857759,
+      "dwin": 255,
+      "tcprtt": 0.000869,
+      "synack": 0.000659,
+      "ackdat": 0.00021,
+      "smean": 59,
+      "dmean": 858,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 9,
+      "ct_state_ttl": 0,
+      "ct_dst_ltm": 1,
+      "ct_src_dport_ltm": 1,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 1,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 2,
+      "ct_srv_dst": 7,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Normal",
+      "label": 0
+    },
+    {
+      "id": 52680,
+      "dur": 0.791676,
+      "proto": "tcp",
+      "service": "-",
+      "state": "FIN",
+      "spkts": 12,
+      "dpkts": 8,
+      "sbytes": 1068,
+      "dbytes": 758,
+      "rate": 23.999718,
+      "sttl": 254,
+      "dttl": 252,
+      "sload": 9892.936523,
+      "dload": 6709.815918,
+      "sloss": 3,
+      "dloss": 2,
+      "sinpkt": 71.888543,
+      "dinpkt": 103.99557,
+      "sjit": 3761.079846,
+      "djit": 135.8935,
+      "swin": 255,
+      "stcpb": 246775611,
+      "dtcpb": 998731206,
+      "dwin": 255,
+      "tcprtt": 0.136534,
+      "synack": 0.063706,
+      "ackdat": 0.072828,
+      "smean": 89,
+      "dmean": 95,
+      "trans_depth": 0,
+      "response_body_len": 0,
+      "ct_srv_src": 11,
+      "ct_state_ttl": 1,
+      "ct_dst_ltm": 4,
+      "ct_src_dport_ltm": 3,
+      "ct_dst_sport_ltm": 1,
+      "ct_dst_src_ltm": 6,
+      "is_ftp_login": 0,
+      "ct_ftp_cmd": 0,
+      "ct_flw_http_mthd": 0,
+      "ct_src_ltm": 3,
+      "ct_srv_dst": 8,
+      "is_sm_ips_ports": 0,
+      "attack_cat": "Fuzzers",
+      "label": 1
+    }
+  ],
+  "features": [
+    {
+      "feature": "dur",
+      "type": "float64",
+      "group": "Connection context",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "proto",
+      "type": "str",
+      "group": "Connection context",
+      "processing": "One-hot encoding"
+    },
+    {
+      "feature": "service",
+      "type": "str",
+      "group": "Connection context",
+      "processing": "One-hot encoding"
+    },
+    {
+      "feature": "state",
+      "type": "str",
+      "group": "Connection context",
+      "processing": "One-hot encoding"
+    },
+    {
+      "feature": "spkts",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dpkts",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sbytes",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dbytes",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "rate",
+      "type": "float64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sttl",
+      "type": "int64",
+      "group": "Packet behavior",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dttl",
+      "type": "int64",
+      "group": "Packet behavior",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sload",
+      "type": "float64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dload",
+      "type": "float64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sloss",
+      "type": "int64",
+      "group": "Packet behavior",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dloss",
+      "type": "int64",
+      "group": "Packet behavior",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sinpkt",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dinpkt",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "sjit",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "djit",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "swin",
+      "type": "int64",
+      "group": "TCP state",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "stcpb",
+      "type": "int64",
+      "group": "TCP state",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dtcpb",
+      "type": "int64",
+      "group": "TCP state",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dwin",
+      "type": "int64",
+      "group": "TCP state",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "tcprtt",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "synack",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ackdat",
+      "type": "float64",
+      "group": "Timing",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "smean",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "dmean",
+      "type": "int64",
+      "group": "Traffic volume",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "trans_depth",
+      "type": "int64",
+      "group": "Application activity",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "response_body_len",
+      "type": "int64",
+      "group": "Application activity",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_srv_src",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_state_ttl",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_dst_ltm",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_src_dport_ltm",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_dst_sport_ltm",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_dst_src_ltm",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "is_ftp_login",
+      "type": "int64",
+      "group": "Application activity",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_ftp_cmd",
+      "type": "int64",
+      "group": "Application activity",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_flw_http_mthd",
+      "type": "int64",
+      "group": "Application activity",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_src_ltm",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "ct_srv_dst",
+      "type": "int64",
+      "group": "Connection history",
+      "processing": "Median + StandardScaler"
+    },
+    {
+      "feature": "is_sm_ips_ports",
+      "type": "int64",
+      "group": "Endpoint indicator",
+      "processing": "Median + StandardScaler"
+    }
+  ],
+  "groups": [
+    {
+      "group": "Connection context",
+      "features": [
+        "dur",
+        "proto",
+        "service",
+        "state"
+      ],
+      "meaning": "Flow duration, protocol, service and connection state."
+    },
+    {
+      "group": "Traffic volume",
+      "features": [
+        "spkts",
+        "dpkts",
+        "sbytes",
+        "dbytes",
+        "rate",
+        "sload",
+        "dload",
+        "smean",
+        "dmean"
+      ],
+      "meaning": "Directional packets, bytes, transfer rates and mean packet sizes."
+    },
+    {
+      "group": "Packet behavior",
+      "features": [
+        "sttl",
+        "dttl",
+        "sloss",
+        "dloss"
+      ],
+      "meaning": "Directional time-to-live and retransmission/loss measurements."
+    },
+    {
+      "group": "Timing",
+      "features": [
+        "sinpkt",
+        "dinpkt",
+        "sjit",
+        "djit",
+        "tcprtt",
+        "synack",
+        "ackdat"
+      ],
+      "meaning": "Packet spacing, jitter and TCP handshake timings."
+    },
+    {
+      "group": "TCP state",
+      "features": [
+        "swin",
+        "dwin",
+        "stcpb",
+        "dtcpb"
+      ],
+      "meaning": "Directional TCP window sizes and sequence-number bases."
+    },
+    {
+      "group": "Application activity",
+      "features": [
+        "trans_depth",
+        "response_body_len",
+        "is_ftp_login",
+        "ct_ftp_cmd",
+        "ct_flw_http_mthd"
+      ],
+      "meaning": "HTTP transaction depth, response size and HTTP/FTP activity."
+    },
+    {
+      "group": "Connection history",
+      "features": [
+        "ct_srv_src",
+        "ct_state_ttl",
+        "ct_dst_ltm",
+        "ct_src_dport_ltm",
+        "ct_dst_sport_ltm",
+        "ct_dst_src_ltm",
+        "ct_src_ltm",
+        "ct_srv_dst"
+      ],
+      "meaning": "Dataset-supplied counts of recent repeated services, endpoints, ports and state/TTL combinations."
+    },
+    {
+      "group": "Endpoint indicator",
+      "features": [
+        "is_sm_ips_ports"
+      ],
+      "meaning": "Whether the supplied flow has matching source/destination IPs and ports."
+    }
+  ],
+  "models": {
+    "Decision Tree": "DecisionTreeClassifier(class_weight='balanced', max_depth=22,\n                       min_samples_leaf=4, random_state=42)",
+    "Random Forest": "RandomForestClassifier(class_weight='balanced_subsample', max_depth=25,\n                       min_samples_leaf=2, n_estimators=90, n_jobs=-1,\n                       random_state=42)",
+    "Extra Trees": "ExtraTreesClassifier(class_weight='balanced', min_samples_leaf=2,\n                     n_estimators=90, n_jobs=-1, random_state=42)",
+    "Logistic Regression": "LogisticRegression(class_weight='balanced', max_iter=800, random_state=42)"
+  },
+  "class_counts": {
+    "Normal": 5204,
+    "Exploits": 1855,
+    "Fuzzers": 1471,
+    "Reconnaissance": 625,
+    "Generic": 393,
+    "DoS": 250,
+    "Shellcode": 109,
+    "Backdoor": 41,
+    "Analysis": 40,
+    "Worms": 12
+  }
+}
