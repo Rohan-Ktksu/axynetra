@@ -2,6 +2,41 @@
 
 **Explainable Network Threat Classification & Intelligent Alert Triage**
 
+**Project owner: Rohan Ktksu ([Rohan-Ktksu](https://github.com/Rohan-Ktksu)).**
+
+## Interactive website
+
+```powershell
+python -m pip install -r requirements.txt
+python -m streamlit run dashboard.py
+```
+
+The website opens without requiring a pre-generated `outputs/` folder:
+
+- **Overview:** project introduction, dataset provenance and model preparation.
+- **Predict:** select bundled test records or upload a CSV, then press **Predict**. The first prediction prepares the experiment; subsequent predictions reuse its fitted winning pipeline. Inspect actual vs predicted labels, class scores and review flags, then download predictions.
+- **Results:** validation leaderboard, held-out metrics, confusion matrix, ROC curves, source-labelled feature importance, filtered alerts, and a ZIP of all experiment outputs.
+- **Model & Features:** [full workflow explanation](docs/model_and_features.md), all 42 predictors grouped by purpose, exclusions, preprocessing, exact classifier parameters and source-code links.
+
+The website uses the bundled cleaned reference CSVs with stratified caps of **10,000 training / 5,000 test records**, seed 42. Hashes are verified before training. Four classifiers compete on validation Macro F1; the selected winner is refitted on training and evaluated in one held-out stage per run. Predictions use that same pipeline. The first run can take a few minutes; the server caches the prepared model in memory until restart. No model download or separate dataset setup is required.
+
+CSV uploads accept all 42 feature columns (download a template on Predict), at most **1,000 records / 5 MB**. Optional `id`, `label` and `attack_cat` columns are excluded from inference. Malformed headers, missing features and invalid/infinite numeric inputs are rejected; blank features use the fitted imputers. Uploaded flows and interactive predictions remain in the current session and do not modify training or evaluation results.
+
+Website code is organized in `website.py` (pages) and `website_core.py` (verified data loading and validated inference). It reuses `multiclass_intrusion.run_experiment`, which returns metadata and the fitted winner. The existing `run` API still returns metadata for command-line/report callers. Website evaluation artifacts are grouped in **`outputs/website/`**; synthetic notebook outputs remain separate. This is a cleaned, sampled UNSW-NB15 experiment, not the unchanged official benchmark or a live IDS.
+
+To inspect older offline artifacts, the original viewer remains available:
+
+```powershell
+python -m streamlit run dashboard.py -- --results outputs
+```
+
+Website regression checks (including an actual Streamlit Predict-button test):
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
 [![Open CSV notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rohan-Ktksu/axynetra/blob/main/reference/Axynetra_UNSW_NB15.ipynb)
 
 **[Open the CSV notebook with saved outputs](reference/Axynetra_UNSW_NB15.ipynb)** · **[CSV data and notebook reference folder](reference/)**

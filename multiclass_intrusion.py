@@ -318,7 +318,11 @@ def compute_local_feature_signals(X_train_df, X_eval_df, top_k=3):
     return signals
 
 
-def run(train, test, output, smoke, val_fraction=0.20):
+def run_experiment(train, test, output, smoke, val_fraction=0.20):
+    """Evaluate an experiment and return its metadata and fitted winning pipeline.
+
+    The website reuses this exact pipeline for inference; no second model is trained.
+    """
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
 
@@ -503,6 +507,10 @@ def run(train, test, output, smoke, val_fraction=0.20):
         'val_rows': int(len(val_sub)),
         'test_rows': int(len(test)),
         'predictor_count': int(len(feature_cols)),
+        'predictor_columns': feature_cols,
+        'numeric_predictors': list(X_tr_full.select_dtypes(include='number').columns),
+        'categorical_predictors': [c for c in feature_cols if c not in X_tr_full.select_dtypes(include='number').columns],
+        'transformed_feature_count': int(len(winner.named_steps['features'].get_feature_names_out())),
         'excluded_leakage_columns': sorted(LEAKAGE_COLUMNS),
         'selection_protocol': (
             'Stratified validation split created from training data only. '
@@ -526,6 +534,12 @@ def run(train, test, output, smoke, val_fraction=0.20):
     }
     (output / 'run_metadata.json').write_text(json.dumps(metadata, indent=2), encoding='utf-8')
     print('Output artifacts saved in:', output.resolve())
+    return metadata, winner
+
+
+def run(train, test, output, smoke, val_fraction=0.20):
+    """Backward-compatible command-line/report API returning JSON-safe metadata."""
+    metadata, _ = run_experiment(train, test, output, smoke, val_fraction)
     return metadata
 
 
